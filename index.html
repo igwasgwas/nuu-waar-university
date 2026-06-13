@@ -259,6 +259,48 @@
           </table>
         </div>
       </div>
+
+      <!-- Algoritma Penjelasan Panel -->
+      <div class="mt-8">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <i data-lucide="book-open" class="w-5 h-5 text-amber-400"></i>
+          Informasi & Kompleksitas Algoritma
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Linear Search -->
+          <div class="glass-card p-5 border-l-4 border-l-blue-500">
+            <div class="flex items-center gap-2.5 mb-2">
+              <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-500/20 text-blue-300">O(n)</span>
+              <h4 class="font-bold text-white">Linear Search</h4>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed">
+              Mencari data mahasiswa berdasarkan <strong>Nama</strong>. Algoritma memindai setiap baris data dari awal hingga akhir secara sekuensial. Kecepatannya berbanding lurus dengan jumlah data ($n$).
+            </p>
+          </div>
+
+          <!-- Binary Search -->
+          <div class="glass-card p-5 border-l-4 border-l-emerald-500">
+            <div class="flex items-center gap-2.5 mb-2">
+              <span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-300">O(log n)</span>
+              <h4 class="font-bold text-white">Binary Search</h4>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed">
+              Mencari mahasiswa berdasarkan <strong>NIM</strong>. Data diurutkan berdasarkan NIM terlebih dahulu, kemudian pencarian dilakukan dengan membagi wilayah pencarian menjadi dua bagian secara berulang. Sangat efisien untuk data besar.
+            </p>
+          </div>
+
+          <!-- Bubble Sort -->
+          <div class="glass-card p-5 border-l-4 border-l-purple-500">
+            <div class="flex items-center gap-2.5 mb-2">
+              <span class="px-2 py-0.5 rounded text-xs font-semibold bg-purple-500/20 text-purple-300">O(n²)</span>
+              <h4 class="font-bold text-white">Bubble Sort</h4>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed">
+              Mengurutkan peringkat <strong>IPK</strong> mahasiswa. Algoritma berulang kali membandingkan elemen yang bersebelahan dan menukarnya jika posisinya salah, terus berulang hingga semua data terurut rapi.
+            </p>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 

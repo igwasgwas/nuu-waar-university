@@ -595,15 +595,20 @@ function renderTable() {
 searchBySelect.addEventListener('change', (e) => {
   state.searchBy = e.target.value;
   searchInput.placeholder = state.searchBy === 'nama' ? 'Cari berdasarkan nama...' : 'Cari berdasarkan NIM...';
+  handleSearch(true);
+});
+
+searchInput.addEventListener('input', () => {
+  handleSearch(true);
 });
 
 searchInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
-    handleSearch();
+    handleSearch(false);
   }
 });
 
-function handleSearch() {
+function handleSearch(isTyping = false) {
   const query = searchInput.value.trim();
   state.searchQuery = query;
 
