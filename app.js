@@ -1061,3 +1061,326 @@ function setEmailModalLoading(isLoading) {
   }
 }
 
+// ============================================================
+// Tab Navigation (Mahasiswa vs Agenda)
+// ============================================================
+const navBtnMahasiswa = document.getElementById('nav-btn-mahasiswa');
+const navBtnAgenda = document.getElementById('nav-btn-agenda');
+const mahasiswaView = document.getElementById('mahasiswa-view');
+const agendaView = document.getElementById('agenda-view');
+
+safeAddListener(navBtnMahasiswa, 'click', () => {
+  navBtnMahasiswa.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-white transition-all cursor-pointer';
+  navBtnAgenda.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold text-white/60 hover:text-white transition-all cursor-pointer';
+  mahasiswaView.classList.remove('hidden');
+  agendaView.classList.add('hidden');
+});
+
+safeAddListener(navBtnAgenda, 'click', () => {
+  navBtnAgenda.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-white transition-all cursor-pointer';
+  navBtnMahasiswa.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold text-white/60 hover:text-white transition-all cursor-pointer';
+  agendaView.classList.remove('hidden');
+  mahasiswaView.classList.add('hidden');
+  renderAgenda();
+});
+
+// ============================================================
+// Export & Import JSON
+// ============================================================
+const btnExportJson = document.getElementById('btn-export-json');
+const btnImportJson = document.getElementById('btn-import-json');
+const fileImportInput = document.getElementById('file-import-input');
+
+safeAddListener(btnExportJson, 'click', () => {
+  if (!state.students || state.students.length === 0) {
+    showToast('error', 'Tidak ada data untuk diekspor');
+    return;
+  }
+  
+  const dataStr = JSON.stringify(state.students.map(s => s.toObject()), null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `data_mahasiswa_nuuwaar_${new Date().getTime()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('success', 'Data berhasil diekspor');
+});
+
+safeAddListener(btnImportJson, 'click', () => {
+  fileImportInput.click();
+});
+
+safeAddListener(fileImportInput, 'change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = async (event) => {
+    try {
+      const data = JSON.parse(event.target.result);
+      if (!Array.isArray(data)) throw new Error('Format JSON tidak valid');
+      
+      studentTableLoading.classList.remove('hidden');
+      studentTableEmpty.classList.add('hidden');
+      
+      let successCount = 0;
+      for (const item of data) {
+        try {
+          const mhs = new Mahasiswa(item.nama, item.nim, item.program_studi, parseFloat(item.ipk));
+          const res = await fetch('/api/mahasiswa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(mhs.toObject())
+          });
+          if (res.ok) successCount++;
+        } catch (err) {
+          console.warn('Gagal impor baris:', item, err);
+        }
+      }
+      
+      showToast('success', `${successCount} data mahasiswa berhasil diimpor`);
+      fetchStudents();
+    } catch (err) {
+      showToast('error', 'Gagal memproses file JSON: ' + err.message);
+    } finally {
+      fileImportInput.value = '';
+      studentTableLoading.classList.add('hidden');
+    }
+  };
+  reader.readAsText(file);
+});
+
+// ============================================================
+// Agenda Kampus (Local Storage)
+// ============================================================
+const agendaGrid = document.getElementById('agenda-grid');
+const agendaEmptyState = document.getElementById('agenda-empty-state');
+const agendaModal = document.getElementById('agenda-modal');
+const btnOpenAgendaModal = document.getElementById('btn-open-agenda-modal');
+const btnCloseAgendaModal = document.getElementById('btn-close-agenda-modal');
+const btnCancelAgendaModal = document.getElementById('btn-cancel-agenda-modal');
+const btnSubmitAgendaModal = document.getElementById('btn-submit-agenda-modal');
+
+const inputAgendaTitle = document.getElementById('input-agenda-title');
+const inputAgendaDate = document.getElementById('input-agenda-date');
+const inputAgendaLoc = document.getElementById('input-agenda-loc');
+const inputAgendaType = document.getElementById('input-agenda-type');
+
+const btnFilterAgendaAll = document.getElementById('btn-filter-agenda-all');
+const btnFilterAgendaSeminar = document.getElementById('btn-filter-agenda-seminar');
+const btnFilterAgendaKegiatan = document.getElementById('btn-filter-agenda-kegiatan');
+
+let currentAgendaFilter = 'All';
+
+function getAgendas() {
+  const data = localStorage.getItem('nuuwaar_agendas');
+  return data ? JSON.parse(data) : [];
+}
+
+function saveAgendas(agendas) {
+  localStorage.setItem('nuuwaar_agendas', JSON.stringify(agendas));
+}
+
+safeAddListener(btnOpenAgendaModal, 'click', () => {
+  inputAgendaTitle.value = '';
+  inputAgendaDate.value = '';
+  inputAgendaLoc.value = '';
+  inputAgendaType.value = 'Seminar';
+  agendaModal.classList.remove('hidden');
+  agendaModal.classList.add('flex');
+});
+
+function closeAgendaModal() {
+  agendaModal.classList.add('hidden');
+  agendaModal.classList.remove('flex');
+}
+
+safeAddListener(btnCloseAgendaModal, 'click', closeAgendaModal);
+safeAddListener(btnCancelAgendaModal, 'click', closeAgendaModal);
+
+safeAddListener(btnSubmitAgendaModal, 'click', () => {
+  const title = inputAgendaTitle.value.trim();
+  const date = inputAgendaDate.value;
+  const loc = inputAgendaLoc.value.trim();
+  const type = inputAgendaType.value;
+  
+  if (!title || !date || !loc) {
+    showToast('error', 'Semua field agenda wajib diisi');
+    return;
+  }
+  
+  const agendas = getAgendas();
+  agendas.push({ id: Date.now().toString(), title, date, loc, type });
+  saveAgendas(agendas);
+  
+  showToast('success', 'Agenda berhasil ditambahkan');
+  closeAgendaModal();
+  renderAgenda();
+});
+
+function renderAgenda() {
+  const allAgendas = getAgendas();
+  const filtered = currentAgendaFilter === 'All' 
+    ? allAgendas 
+    : allAgendas.filter(a => a.type === currentAgendaFilter);
+    
+  agendaGrid.innerHTML = '';
+  
+  if (filtered.length === 0) {
+    agendaEmptyState.classList.remove('hidden');
+  } else {
+    agendaEmptyState.classList.add('hidden');
+    
+    // Sort by date upcoming
+    filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    filtered.forEach(agenda => {
+      const isSeminar = agenda.type === 'Seminar';
+      const typeColor = isSeminar ? 'from-purple-500 to-purple-600' : 'from-blue-500 to-blue-600';
+      const icon = isSeminar ? 'mic' : 'calendar-days';
+      
+      const div = document.createElement('div');
+      div.className = 'glass-card p-5 relative overflow-hidden group';
+      div.innerHTML = `
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
+        <div class="flex justify-between items-start mb-4 relative z-10">
+          <div class="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-white/10 border border-white/10 text-white/80">
+            ${agenda.type}
+          </div>
+          <button class="text-white/40 hover:text-rose-400 transition-colors" onclick="deleteAgenda('${agenda.id}')">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <h4 class="text-lg font-bold text-white mb-2 leading-tight relative z-10">${agenda.title}</h4>
+        <div class="space-y-2 mt-4 relative z-10">
+          <div class="flex items-center gap-2 text-white/60 text-sm">
+            <i data-lucide="calendar" class="w-4 h-4 text-amber-400"></i>
+            <span>${new Date(agenda.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          </div>
+          <div class="flex items-center gap-2 text-white/60 text-sm">
+            <i data-lucide="map-pin" class="w-4 h-4 text-amber-400"></i>
+            <span>${agenda.loc}</span>
+          </div>
+        </div>
+      `;
+      agendaGrid.appendChild(div);
+    });
+    lucide.createIcons();
+  }
+}
+
+window.deleteAgenda = (id) => {
+  let agendas = getAgendas();
+  agendas = agendas.filter(a => a.id !== id);
+  saveAgendas(agendas);
+  showToast('success', 'Agenda dihapus');
+  renderAgenda();
+};
+
+function setAgendaFilter(filter, activeBtn) {
+  currentAgendaFilter = filter;
+  [btnFilterAgendaAll, btnFilterAgendaSeminar, btnFilterAgendaKegiatan].forEach(btn => {
+    btn.className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all cursor-pointer';
+  });
+  activeBtn.className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 text-white transition-all cursor-pointer';
+  renderAgenda();
+}
+
+safeAddListener(btnFilterAgendaAll, 'click', () => setAgendaFilter('All', btnFilterAgendaAll));
+safeAddListener(btnFilterAgendaSeminar, 'click', () => setAgendaFilter('Seminar', btnFilterAgendaSeminar));
+safeAddListener(btnFilterAgendaKegiatan, 'click', () => setAgendaFilter('Kegiatan', btnFilterAgendaKegiatan));
+
+// ============================================================
+// TechBot AI Chatbot (Mock/Simulated)
+// ============================================================
+const chatbotToggle = document.getElementById('chatbot-toggle');
+const chatbotPanel = document.getElementById('chatbot-panel');
+const chatbotClose = document.getElementById('chatbot-close');
+const chatbotInput = document.getElementById('chatbot-input');
+const chatbotSend = document.getElementById('chatbot-send');
+const chatbotMessages = document.getElementById('chatbot-messages');
+
+safeAddListener(chatbotToggle, 'click', () => {
+  chatbotPanel.classList.remove('hidden');
+  chatbotToggle.classList.add('hidden');
+});
+
+safeAddListener(chatbotClose, 'click', () => {
+  chatbotPanel.classList.add('hidden');
+  chatbotToggle.classList.remove('hidden');
+});
+
+function addChatMessage(message, isBot = false) {
+  const div = document.createElement('div');
+  div.className = isBot ? 'flex items-start gap-2.5' : 'flex items-end justify-end gap-2.5 mt-4 mb-4';
+  
+  if (isBot) {
+    div.innerHTML = `
+      <div class="w-7 h-7 rounded bg-cyan-500/20 flex items-center justify-center text-cyan-300 font-bold text-xs shrink-0">TB</div>
+      <div class="p-3 bg-white/5 rounded-2xl rounded-tl-none border border-white/10 max-w-[80%] text-xs text-white/80 leading-relaxed">
+        ${message}
+      </div>
+    `;
+  } else {
+    div.innerHTML = `
+      <div class="p-3 bg-cyan-500 rounded-2xl rounded-tr-none max-w-[80%] text-xs text-white shadow-md leading-relaxed">
+        ${message}
+      </div>
+    `;
+  }
+  
+  chatbotMessages.appendChild(div);
+  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+}
+
+async function handleChatbotSend() {
+  const msg = chatbotInput.value.trim();
+  if (!msg) return;
+  
+  // User message
+  addChatMessage(msg, false);
+  chatbotInput.value = '';
+  
+  // Simulate bot typing
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'flex items-start gap-2.5 mt-4 mb-4 bot-typing';
+  typingDiv.innerHTML = `
+    <div class="w-7 h-7 rounded bg-cyan-500/20 flex items-center justify-center text-cyan-300 font-bold text-xs shrink-0">TB</div>
+    <div class="p-3 bg-white/5 rounded-2xl rounded-tl-none border border-white/10 text-xs text-white/50 flex gap-1">
+      <span class="animate-bounce">.</span><span class="animate-bounce" style="animation-delay: 0.1s">.</span><span class="animate-bounce" style="animation-delay: 0.2s">.</span>
+    </div>
+  `;
+  chatbotMessages.appendChild(typingDiv);
+  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  
+  // Fake response logic for mockup
+  setTimeout(() => {
+    typingDiv.remove();
+    let reply = "Maaf, saya masih dalam tahap pengembangan. Namun saya bisa membantu memberikan informasi seputar website manajemen data mahasiswa Nuu Waar University.";
+    
+    const lMsg = msg.toLowerCase();
+    if (lMsg.includes('halo') || lMsg.includes('hai')) {
+      reply = "Halo! Ada yang bisa saya bantu terkait kampus kita?";
+    } else if (lMsg.includes('mahasiswa')) {
+      reply = `Saat ini terdapat ${state.students.length} mahasiswa terdaftar di sistem. Anda bisa melihat datanya di tab 'Data Mahasiswa'.`;
+    } else if (lMsg.includes('agenda')) {
+      const agendas = getAgendas();
+      reply = `Terdapat ${agendas.length} agenda kampus yang terdaftar. Buka tab 'Agenda Kampus' untuk selengkapnya.`;
+    } else if (lMsg.includes('ipk')) {
+      reply = "Data mahasiswa mencakup informasi IPK. Anda juga dapat mengurutkannya (sorting) dengan tombol panah di dashboard.";
+    }
+    
+    addChatMessage(reply, true);
+  }, 1000);
+}
+
+safeAddListener(chatbotSend, 'click', handleChatbotSend);
+safeAddListener(chatbotInput, 'keydown', (e) => {
+  if (e.key === 'Enter') handleChatbotSend();
+});
+
