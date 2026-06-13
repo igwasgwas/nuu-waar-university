@@ -203,6 +203,7 @@ let state = {
   showModal: false,
   editingStudent: null,
   deleteConfirm: null,
+  emailStudent: null,
   submitting: false,
   algorithmInfo: ''
 };
@@ -272,6 +273,19 @@ const deleteModal = document.getElementById('delete-modal');
 const deleteConfirmText = document.getElementById('delete-confirm-text');
 const btnCancelDelete = document.getElementById('btn-cancel-delete');
 const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+
+// Email Modal Elements
+const emailModal = document.getElementById('email-modal');
+const inputEmailTo = document.getElementById('input-email-to');
+const inputEmailSubject = document.getElementById('input-email-subject');
+const emailBodyPreview = document.getElementById('email-body-preview');
+const errorEmailTo = document.getElementById('error-email-to');
+const errorEmailSubject = document.getElementById('error-email-subject');
+const btnCloseEmailModal = document.getElementById('btn-close-email-modal');
+const btnCancelEmailModal = document.getElementById('btn-cancel-email-modal');
+const btnSubmitEmailModal = document.getElementById('btn-submit-email-modal');
+const btnSubmitEmailModalText = document.getElementById('btn-submit-email-modal-text');
+const btnSubmitEmailModalSpinner = document.getElementById('btn-submit-email-modal-spinner');
 
 // Toast Notification
 const toastNotification = document.getElementById('toast-notification');
@@ -571,6 +585,9 @@ function renderTable() {
       </td>
       <td class="px-6 py-4 text-right">
         <div class="flex items-center justify-end gap-2">
+          <button class="btn-email p-2 rounded-lg bg-white/5 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/30 text-white/50 hover:text-amber-300 transition-all" title="Kirim Email">
+            <i data-lucide="mail" class="w-4 h-4"></i>
+          </button>
           <button class="btn-edit p-2 rounded-lg bg-white/5 hover:bg-blue-500/20 border border-white/10 hover:border-blue-500/30 text-white/50 hover:text-blue-300 transition-all" title="Edit">
             <i data-lucide="pencil" class="w-4 h-4"></i>
           </button>
@@ -582,6 +599,7 @@ function renderTable() {
     `;
 
     // Add action listeners
+    tr.querySelector('.btn-email').addEventListener('click', () => openEmailModal(mhs));
     tr.querySelector('.btn-edit').addEventListener('click', () => openModal(mhs));
     tr.querySelector('.btn-delete').addEventListener('click', () => openDeleteModal(mhs));
 
@@ -863,3 +881,105 @@ btnConfirmDelete.addEventListener('click', async () => {
     showToast('error', err.message || 'Gagal menghapus data');
   }
 });
+
+// ============================================================
+// Email Modal Logic
+// ============================================================
+
+function openEmailModal(student) {
+  state.emailStudent = student;
+  errorEmailTo.textContent = '';
+  errorEmailSubject.textContent = '';
+
+  inputEmailTo.value = '';
+  inputEmailSubject.value = `Laporan Akademik: ${student.nama} (${student.nim})`;
+
+  // Render Body Preview
+  emailBodyPreview.innerHTML = `
+    <div><strong>Nama Lengkap :</strong> ${student.nama}</div>
+    <div><strong>NIM          :</strong> ${student.nim}</div>
+    <div><strong>Prodi        :</strong> ${student.programStudi}</div>
+    <div><strong>IPK          :</strong> ${student.ipk.toFixed(2)}</div>
+  `;
+
+  emailModal.classList.remove('hidden');
+  emailModal.classList.add('flex');
+}
+
+function closeEmailModal() {
+  emailModal.classList.add('hidden');
+  emailModal.classList.remove('flex');
+  state.emailStudent = null;
+}
+
+btnCloseEmailModal.addEventListener('click', closeEmailModal);
+btnCancelEmailModal.addEventListener('click', closeEmailModal);
+
+function validateEmailForm() {
+  let isValid = true;
+  errorEmailTo.textContent = '';
+  errorEmailSubject.textContent = '';
+
+  const emailVal = inputEmailTo.value.trim();
+  if (!emailVal) {
+    errorEmailTo.textContent = 'Email penerima wajib diisi';
+    isValid = false;
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+    errorEmailTo.textContent = 'Format email tidak valid';
+    isValid = false;
+  }
+
+  if (!inputEmailSubject.value.trim()) {
+    errorEmailSubject.textContent = 'Subjek email wajib diisi';
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+btnSubmitEmailModal.addEventListener('click', async () => {
+  if (!validateEmailForm()) return;
+
+  const student = state.emailStudent;
+  if (!student) return;
+
+  setEmailModalLoading(true);
+
+  try {
+    const res = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: inputEmailTo.value.trim(),
+        subject: inputEmailSubject.value.trim(),
+        nama: student.nama,
+        nim: student.nim,
+        program_studi: student.programStudi,
+        ipk: student.ipk
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal mengirim email');
+
+    showToast('success', data.message || 'Email berhasil terkirim!');
+    closeEmailModal();
+  } catch (err) {
+    showToast('error', err.message || 'Terjadi kesalahan saat mengirim email');
+  } finally {
+    setEmailModalLoading(false);
+  }
+});
+
+function setEmailModalLoading(isLoading) {
+  btnSubmitEmailModal.disabled = isLoading;
+  btnCancelEmailModal.disabled = isLoading;
+  if (isLoading) {
+    btnSubmitEmailModalText.classList.add('hidden');
+    btnSubmitEmailModalSpinner.classList.remove('hidden');
+  } else {
+    btnSubmitEmailModalText.classList.remove('hidden');
+    btnSubmitEmailModalSpinner.classList.add('hidden');
+  }
+}
+

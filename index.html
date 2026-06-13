@@ -359,6 +359,55 @@
     </div>
   </div>
 
+  <!-- EMAIL MODAL -->
+  <div id="email-modal" class="fixed inset-0 z-40 items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden">
+    <div class="glass-card p-6 sm:p-8 w-full max-w-lg">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-white flex items-center gap-2">
+          <i data-lucide="mail" class="w-5 h-5 text-amber-400"></i>
+          Kirim Data Mahasiswa via Email
+        </h3>
+        <button id="btn-close-email-modal" class="p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-all">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Email Penerima -->
+        <div>
+          <label class="block text-white/60 text-sm mb-1.5">Email Penerima</label>
+          <input id="input-email-to" type="email" placeholder="contoh: mahasiswa@gmail.com" class="glass-input w-full">
+          <p id="error-email-to" class="text-rose-400 text-xs mt-1"></p>
+        </div>
+
+        <!-- Subjek -->
+        <div>
+          <label class="block text-white/60 text-sm mb-1.5">Subjek</label>
+          <input id="input-email-subject" type="text" placeholder="Masukkan subjek email" class="glass-input w-full">
+          <p id="error-email-subject" class="text-rose-400 text-xs mt-1"></p>
+        </div>
+
+        <!-- Preview Konten -->
+        <div>
+          <label class="block text-white/60 text-sm mb-1.5">Preview Konten Laporan</label>
+          <div id="email-body-preview" class="p-4 bg-white/5 rounded-xl border border-white/10 text-white/70 text-xs font-mono space-y-1">
+            <!-- Preview dinamis -->
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-8">
+        <button id="btn-cancel-email-modal" class="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-sm font-medium">
+          Batal
+        </button>
+        <button id="btn-submit-email-modal" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/25 transition-all text-sm">
+          <span id="btn-submit-email-modal-text">Kirim Email</span>
+          <div id="btn-submit-email-modal-spinner" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin hidden"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- DELETE CONFIRMATION MODAL -->
   <div id="delete-modal" class="fixed inset-0 z-40 items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden">
     <div class="glass-card p-6 sm:p-8 w-full max-w-sm text-center">
