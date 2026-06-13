@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Nuu Waar University — Manajemen Data Mahasiswa</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="relative min-h-screen text-white overflow-x-hidden">
+
+  <!-- Animated background orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950">
+    <div class="flex flex-col items-center gap-4">
+      <div class="w-10 h-10 border-4 border-white/20 border-t-amber-400 rounded-full animate-spin"></div>
+      <p class="text-white/50 text-sm">Memuat aplikasi...</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-notification" class="fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl backdrop-blur-xl border border-white/10 opacity-0 -translate-y-60 transition-all duration-300">
+    <div id="toast-icon-success" class="hidden">
+      <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+    </div>
+    <div id="toast-icon-error" class="hidden">
+      <i data-lucide="alert-circle" class="w-5 h-5 text-rose-400"></i>
+    </div>
+    <span id="toast-message" class="text-sm font-medium"></span>
+  </div>
+
+  <!-- AUTHENTICATION SECTION -->
+  <div id="auth-section" class="min-h-screen flex items-center justify-center p-4 relative z-10 hidden">
+    <div class="w-full max-w-md">
+      <!-- University Branding -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/30 mb-4">
+          <i data-lucide="graduation-cap" class="w-10 h-10 text-white"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-white tracking-tight">Nuu Waar University</h1>
+        <p class="text-white/50 mt-1 text-sm">Sistem Manajemen Data Mahasiswa</p>
+      </div>
+
+      <!-- Glass Card Form -->
+      <div class="glass-card p-8">
+        <h2 id="auth-title" class="text-xl font-semibold text-white mb-6">Masuk ke Akun</h2>
+
+        <!-- Error Alert -->
+        <div id="auth-error-alert" class="flex items-center gap-2 bg-rose-500/20 border border-rose-500/30 rounded-xl px-4 py-3 mb-4 hidden">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+          <span id="auth-error-message" class="text-rose-300 text-sm"></span>
+        </div>
+
+        <form id="auth-form" class="space-y-4">
+          <!-- Email -->
+          <div class="relative">
+            <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"></i>
+            <input id="email-input" type="email" placeholder="Email" class="glass-input pl-10 w-full" required>
+          </div>
+
+          <!-- Password -->
+          <div class="relative">
+            <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"></i>
+            <input id="password-input" type="password" placeholder="Kata Sandi" class="glass-input pl-10 pr-10 w-full" required>
+            <button id="show-password-btn" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors">
+              <i id="show-password-icon" data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Confirm Password (Register Mode only) -->
+          <div id="confirm-password-group" class="relative hidden">
+            <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"></i>
+            <input id="confirm-password-input" type="password" placeholder="Konfirmasi Kata Sandi" class="glass-input pl-10 w-full">
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-amber-500/25 transition-all duration-200">
+            <span id="auth-submit-btn-text">Masuk</span>
+          </button>
+        </form>
+
+        <div class="mt-6 text-center">
+          <p class="text-white/50 text-sm">
+            <span id="auth-toggle-text">Belum punya akun?</span>
+            <button id="btn-toggle-auth-mode" class="text-amber-400 hover:text-amber-300 font-medium transition-colors">Daftar</button>
+          </p>
+        </div>
+
+        <!-- Demo Account Banner -->
+        <div id="demo-account-banner" class="mt-4 p-3 bg-white/5 rounded-xl border border-white/10">
+          <p class="text-white/40 text-xs text-center">
+            Akun demo: <span class="text-white/60 font-mono">admin@nuwaar.ac.id</span> / <span class="text-white/60 font-mono">admin123</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SECTION -->
+  <div id="dashboard-section" class="min-h-screen relative z-10 hidden">
+    <!-- Navigation Bar -->
+    <nav class="glass-nav border-b border-white/10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+            <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+          </div>
+          <h1 class="text-lg font-bold text-white tracking-tight">Nuu Waar University</h1>
+        </div>
+        <button id="btn-logout" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all text-sm">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          Keluar
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Welcome Header -->
+      <div class="mb-8">
+        <h2 class="text-2xl sm:text-3xl font-bold text-white">Dashboard</h2>
+        <p class="text-white/50 mt-1">Manajemen Data Mahasiswa</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Card 1: Total -->
+        <div class="glass-card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+              <i data-lucide="users" class="w-5 h-5 text-white"></i>
+            </div>
+          </div>
+          <p id="total-students-val" class="text-2xl font-bold text-white">0</p>
+          <p class="text-white/40 text-sm mt-1">Jumlah Mahasiswa</p>
+        </div>
+
+        <!-- Card 2: Rata-rata IPK -->
+        <div class="glass-card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+              <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+            </div>
+          </div>
+          <p id="avg-ipk-val" class="text-2xl font-bold text-white">0.00</p>
+          <p class="text-white/40 text-sm mt-1">Rata-rata IPK</p>
+        </div>
+
+        <!-- Card 3: IPK Tertinggi -->
+        <div class="glass-card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg">
+              <i data-lucide="award" class="w-5 h-5 text-white"></i>
+            </div>
+          </div>
+          <p id="highest-ipk-val" class="text-2xl font-bold text-white">0.00</p>
+          <p class="text-white/40 text-sm mt-1">IPK Tertinggi</p>
+        </div>
+
+        <!-- Card 4: IPK Terendah -->
+        <div class="glass-card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <i data-lucide="book-open" class="w-5 h-5 text-white"></i>
+            </div>
+          </div>
+          <p id="lowest-ipk-val" class="text-2xl font-bold text-white">0.00</p>
+          <p class="text-white/40 text-sm mt-1">IPK Terendah</p>
+        </div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="glass-card p-5 mb-6">
+        <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+          <!-- Add Button -->
+          <button id="btn-add-student" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/25 transition-all text-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Tambah Mahasiswa
+          </button>
+
+          <!-- Search & Sort Controls -->
+          <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <!-- Search -->
+            <div class="flex items-center gap-2">
+              <select id="search-by-select" class="glass-input py-2.5 px-3 text-sm min-w-[140px]">
+                <option value="nama">Cari: Nama</option>
+                <option value="nim">Cari: NIM</option>
+              </select>
+              <div class="relative flex-1">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"></i>
+                <input id="search-input" type="text" placeholder="Cari berdasarkan nama..." class="glass-input pl-10 py-2.5 text-sm w-full sm:w-56">
+              </div>
+            </div>
+
+            <!-- Sort Buttons -->
+            <div class="flex items-center gap-2">
+              <button id="btn-sort-desc" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10">
+                <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i>
+                IPK Tertinggi
+              </button>
+              <button id="btn-sort-asc" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10">
+                <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+                IPK Terendah
+              </button>
+              <button id="btn-reset-filters" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all hidden" title="Reset filter">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Algorithm Info -->
+        <div id="algorithm-info-container" class="mt-3 hidden">
+          <div class="flex items-center gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+            <i data-lucide="arrow-up-down" class="w-4 h-4 text-amber-400"></i>
+            <span id="algorithm-info-text" class="text-amber-300 text-sm"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Data Table Container -->
+      <div class="glass-card overflow-hidden">
+        <!-- Table Loader -->
+        <div id="student-table-loading" class="flex items-center justify-center py-20 hidden">
+          <div class="w-8 h-8 border-3 border-white/20 border-t-amber-400 rounded-full animate-spin"></div>
+        </div>
+
+        <!-- Table Empty State -->
+        <div id="student-table-empty" class="flex flex-col items-center justify-center py-20 text-white/40 hidden">
+          <i data-lucide="users" class="w-12 h-12 mb-3 opacity-50"></i>
+          <p id="student-table-empty-title" class="text-lg font-medium">Belum ada data mahasiswa</p>
+          <p id="student-table-empty-desc" class="text-sm mt-1">Klik "Tambah Mahasiswa" untuk menambahkan data</p>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-white/10">
+                <th class="text-left px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">No</th>
+                <th class="text-left px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">NIM</th>
+                <th class="text-left px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">Nama</th>
+                <th class="text-left px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">Program Studi</th>
+                <th class="text-left px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">IPK</th>
+                <th class="text-right px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="student-table-body">
+              <!-- Data mahasiswa akan dirender secara dinamis oleh JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ADD / EDIT STUDENT MODAL -->
+  <div id="student-modal" class="fixed inset-0 z-40 items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden">
+    <div class="glass-card p-6 sm:p-8 w-full max-w-lg">
+      <div class="flex items-center justify-between mb-6">
+        <h3 id="modal-title" class="text-xl font-semibold text-white">Tambah Mahasiswa Baru</h3>
+        <button id="btn-close-modal" class="p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-all">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Nama -->
+        <div>
+          <label class="block text-white/60 text-sm mb-1.5">Nama Lengkap</label>
+          <input id="input-nama" type="text" placeholder="Masukkan nama lengkap" class="glass-input w-full">
+          <p id="error-nama" class="text-rose-400 text-xs mt-1"></p>
+        </div>
+
+        <!-- NIM -->
+        <div>
+          <label class="block text-white/60 text-sm mb-1.5">NIM</label>
+          <input id="input-nim" type="text" placeholder="Masukkan NIM" class="glass-input w-full">
+          <p id="error-nim" class="text-rose-400 text-xs mt-1"></p>
+        </div>
+
+        <!-- Program Studi -->
+        <div>
+          <label class="block text-white/60 text-sm mb-1.5">Program Studi</label>
+          <input id="input-prodi" type="text" placeholder="Masukkan program studi" list="prodi-list" class="glass-input w-full">
+          <datalist id="prodi-list">
+            <!-- Pilihan program studi di-generate di JS -->
+          </datalist>
+          <p id="error-prodi" class="text-rose-400 text-xs mt-1"></p>
+        </div>
+
+        <!-- IPK -->
+        <div>
+          <label class="block text-white/60 text-sm mb-1.5">IPK (0.0 – 4.0)</label>
+          <input id="input-ipk" type="text" placeholder="Contoh: 3.50" class="glass-input w-full">
+          <p id="error-ipk" class="text-rose-400 text-xs mt-1"></p>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-8">
+        <button id="btn-cancel-modal" class="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-sm font-medium">
+          Batal
+        </button>
+        <button id="btn-submit-modal" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/25 transition-all text-sm">
+          <span id="btn-submit-modal-text">Tambah Mahasiswa</span>
+          <div id="btn-submit-modal-spinner" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin hidden"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div id="delete-modal" class="fixed inset-0 z-40 items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden">
+    <div class="glass-card p-6 sm:p-8 w-full max-w-sm text-center">
+      <div class="w-14 h-14 rounded-full bg-rose-500/20 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="trash-2" class="w-7 h-7 text-rose-400"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-white mb-2">Hapus Data Mahasiswa?</h3>
+      <p id="delete-confirm-text" class="text-white/50 text-sm mb-6"></p>
+      <div class="flex gap-3">
+        <button id="btn-cancel-delete" class="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-sm font-medium">
+          Batal
+        </button>
+        <button id="btn-confirm-delete" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-semibold rounded-xl shadow-lg shadow-rose-500/25 transition-all text-sm">
+          Ya, Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CDN scripts -->
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Core Logic app.js -->
+  <script src="/app.js"></script>
+</body>
+</html>
