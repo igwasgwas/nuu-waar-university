@@ -276,11 +276,21 @@ const btnConfirmDelete = document.getElementById('btn-confirm-delete');
 
 // Email Modal Elements
 const emailModal = document.getElementById('email-modal');
+const btnOpenComplaint = document.getElementById('btn-open-complaint');
 const inputEmailTo = document.getElementById('input-email-to');
+const inputEmailNama = document.getElementById('input-email-nama');
+const inputEmailNim = document.getElementById('input-email-nim');
+const inputEmailFrom = document.getElementById('input-email-from');
 const inputEmailSubject = document.getElementById('input-email-subject');
-const emailBodyPreview = document.getElementById('email-body-preview');
+const inputEmailMessage = document.getElementById('input-email-message');
+
 const errorEmailTo = document.getElementById('error-email-to');
+const errorEmailNama = document.getElementById('error-email-nama');
+const errorEmailNim = document.getElementById('error-email-nim');
+const errorEmailFrom = document.getElementById('error-email-from');
 const errorEmailSubject = document.getElementById('error-email-subject');
+const errorEmailMessage = document.getElementById('error-email-message');
+
 const btnCloseEmailModal = document.getElementById('btn-close-email-modal');
 const btnCancelEmailModal = document.getElementById('btn-cancel-email-modal');
 const btnSubmitEmailModal = document.getElementById('btn-submit-email-modal');
@@ -883,24 +893,32 @@ btnConfirmDelete.addEventListener('click', async () => {
 });
 
 // ============================================================
-// Email Modal Logic
+// Email / Complaint Modal Logic
 // ============================================================
 
-function openEmailModal(student) {
+// Open empty complaint modal from action bar
+btnOpenComplaint.addEventListener('click', () => {
+  openEmailModal(null);
+});
+
+function openEmailModal(student = null) {
   state.emailStudent = student;
-  errorEmailTo.textContent = '';
-  errorEmailSubject.textContent = '';
+  clearEmailFormErrors();
 
   inputEmailTo.value = '';
-  inputEmailSubject.value = `Laporan Akademik: ${student.nama} (${student.nim})`;
+  inputEmailFrom.value = '';
+  inputEmailSubject.value = '';
+  inputEmailMessage.value = '';
 
-  // Render Body Preview
-  emailBodyPreview.innerHTML = `
-    <div><strong>Nama Lengkap :</strong> ${student.nama}</div>
-    <div><strong>NIM          :</strong> ${student.nim}</div>
-    <div><strong>Prodi        :</strong> ${student.programStudi}</div>
-    <div><strong>IPK          :</strong> ${student.ipk.toFixed(2)}</div>
-  `;
+  if (student) {
+    // Pre-fill from student row click
+    inputEmailNama.value = student.nama;
+    inputEmailNim.value = student.nim;
+    inputEmailSubject.value = `[PENGADUAN] Keluhan akademik NIM ${student.nim}`;
+  } else {
+    inputEmailNama.value = '';
+    inputEmailNim.value = '';
+  }
 
   emailModal.classList.remove('hidden');
   emailModal.classList.add('flex');
@@ -915,22 +933,60 @@ function closeEmailModal() {
 btnCloseEmailModal.addEventListener('click', closeEmailModal);
 btnCancelEmailModal.addEventListener('click', closeEmailModal);
 
+function clearEmailFormErrors() {
+  errorEmailTo.textContent = '';
+  errorEmailNama.textContent = '';
+  errorEmailNim.textContent = '';
+  errorEmailFrom.textContent = '';
+  errorEmailSubject.textContent = '';
+  errorEmailMessage.textContent = '';
+}
+
 function validateEmailForm() {
   let isValid = true;
-  errorEmailTo.textContent = '';
-  errorEmailSubject.textContent = '';
+  clearEmailFormErrors();
 
-  const emailVal = inputEmailTo.value.trim();
-  if (!emailVal) {
-    errorEmailTo.textContent = 'Email penerima wajib diisi';
+  // Validate Destination Email
+  const toVal = inputEmailTo.value.trim();
+  if (!toVal) {
+    errorEmailTo.textContent = 'Email tujuan wajib diisi';
     isValid = false;
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toVal)) {
     errorEmailTo.textContent = 'Format email tidak valid';
     isValid = false;
   }
 
+  // Validate Name
+  if (!inputEmailNama.value.trim()) {
+    errorEmailNama.textContent = 'Nama pengadu wajib diisi';
+    isValid = false;
+  }
+
+  // Validate NIM
+  if (!inputEmailNim.value.trim()) {
+    errorEmailNim.textContent = 'NIM pengadu wajib diisi';
+    isValid = false;
+  }
+
+  // Validate Contact Email
+  const fromVal = inputEmailFrom.value.trim();
+  if (!fromVal) {
+    errorEmailFrom.textContent = 'Email hubungi wajib diisi';
+    isValid = false;
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromVal)) {
+    errorEmailFrom.textContent = 'Format email tidak valid';
+    isValid = false;
+  }
+
+  // Validate Subject
   if (!inputEmailSubject.value.trim()) {
-    errorEmailSubject.textContent = 'Subjek email wajib diisi';
+    errorEmailSubject.textContent = 'Subjek keluhan wajib diisi';
+    isValid = false;
+  }
+
+  // Validate Message
+  if (!inputEmailMessage.value.trim()) {
+    errorEmailMessage.textContent = 'Pesan keluhan wajib diisi';
     isValid = false;
   }
 
@@ -939,9 +995,6 @@ function validateEmailForm() {
 
 btnSubmitEmailModal.addEventListener('click', async () => {
   if (!validateEmailForm()) return;
-
-  const student = state.emailStudent;
-  if (!student) return;
 
   setEmailModalLoading(true);
 
@@ -952,20 +1005,20 @@ btnSubmitEmailModal.addEventListener('click', async () => {
       body: JSON.stringify({
         to: inputEmailTo.value.trim(),
         subject: inputEmailSubject.value.trim(),
-        nama: student.nama,
-        nim: student.nim,
-        program_studi: student.programStudi,
-        ipk: student.ipk
+        nama: inputEmailNama.value.trim(),
+        nim: inputEmailNim.value.trim(),
+        emailPengirim: inputEmailFrom.value.trim(),
+        pesan: inputEmailMessage.value.trim()
       })
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Gagal mengirim email');
+    if (!res.ok) throw new Error(data.error || 'Gagal mengirim pengaduan');
 
-    showToast('success', data.message || 'Email berhasil terkirim!');
+    showToast('success', data.message || 'Keluhan berhasil terkirim!');
     closeEmailModal();
   } catch (err) {
-    showToast('error', err.message || 'Terjadi kesalahan saat mengirim email');
+    showToast('error', err.message || 'Terjadi kesalahan saat mengirim pengaduan');
   } finally {
     setEmailModalLoading(false);
   }
