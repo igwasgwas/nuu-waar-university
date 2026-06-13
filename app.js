@@ -897,7 +897,16 @@ btnConfirmDelete.addEventListener('click', async () => {
 // ============================================================
 
 // Open empty complaint modal from action bar
-btnOpenComplaint.addEventListener('click', () => {
+// Safe Event Listener Binder
+function safeAddListener(el, event, handler) {
+  if (el) {
+    el.addEventListener(event, handler);
+  } else {
+    console.warn(`Element not found: ${el}`);
+  }
+}
+
+safeAddListener(btnOpenComplaint, 'click', () => {
   openEmailModal(null);
 });
 
@@ -905,41 +914,45 @@ function openEmailModal(student = null) {
   state.emailStudent = student;
   clearEmailFormErrors();
 
-  inputEmailTo.value = '';
-  inputEmailFrom.value = '';
-  inputEmailSubject.value = '';
-  inputEmailMessage.value = '';
+  if (inputEmailTo) inputEmailTo.value = '';
+  if (inputEmailFrom) inputEmailFrom.value = '';
+  if (inputEmailSubject) inputEmailSubject.value = '';
+  if (inputEmailMessage) inputEmailMessage.value = '';
 
   if (student) {
     // Pre-fill from student row click
-    inputEmailNama.value = student.nama;
-    inputEmailNim.value = student.nim;
-    inputEmailSubject.value = `[PENGADUAN] Keluhan akademik NIM ${student.nim}`;
+    if (inputEmailNama) inputEmailNama.value = student.nama;
+    if (inputEmailNim) inputEmailNim.value = student.nim;
+    if (inputEmailSubject) inputEmailSubject.value = `[PENGADUAN] Keluhan akademik NIM ${student.nim}`;
   } else {
-    inputEmailNama.value = '';
-    inputEmailNim.value = '';
+    if (inputEmailNama) inputEmailNama.value = '';
+    if (inputEmailNim) inputEmailNim.value = '';
   }
 
-  emailModal.classList.remove('hidden');
-  emailModal.classList.add('flex');
+  if (emailModal) {
+    emailModal.classList.remove('hidden');
+    emailModal.classList.add('flex');
+  }
 }
 
 function closeEmailModal() {
-  emailModal.classList.add('hidden');
-  emailModal.classList.remove('flex');
+  if (emailModal) {
+    emailModal.classList.add('hidden');
+    emailModal.classList.remove('flex');
+  }
   state.emailStudent = null;
 }
 
-btnCloseEmailModal.addEventListener('click', closeEmailModal);
-btnCancelEmailModal.addEventListener('click', closeEmailModal);
+safeAddListener(btnCloseEmailModal, 'click', closeEmailModal);
+safeAddListener(btnCancelEmailModal, 'click', closeEmailModal);
 
 function clearEmailFormErrors() {
-  errorEmailTo.textContent = '';
-  errorEmailNama.textContent = '';
-  errorEmailNim.textContent = '';
-  errorEmailFrom.textContent = '';
-  errorEmailSubject.textContent = '';
-  errorEmailMessage.textContent = '';
+  if (errorEmailTo) errorEmailTo.textContent = '';
+  if (errorEmailNama) errorEmailNama.textContent = '';
+  if (errorEmailNim) errorEmailNim.textContent = '';
+  if (errorEmailFrom) errorEmailFrom.textContent = '';
+  if (errorEmailSubject) errorEmailSubject.textContent = '';
+  if (errorEmailMessage) errorEmailMessage.textContent = '';
 }
 
 function validateEmailForm() {
@@ -947,53 +960,65 @@ function validateEmailForm() {
   clearEmailFormErrors();
 
   // Validate Destination Email
-  const toVal = inputEmailTo.value.trim();
-  if (!toVal) {
-    errorEmailTo.textContent = 'Email tujuan wajib diisi';
-    isValid = false;
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toVal)) {
-    errorEmailTo.textContent = 'Format email tidak valid';
-    isValid = false;
+  if (inputEmailTo) {
+    const toVal = inputEmailTo.value.trim();
+    if (!toVal) {
+      if (errorEmailTo) errorEmailTo.textContent = 'Email tujuan wajib diisi';
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toVal)) {
+      if (errorEmailTo) errorEmailTo.textContent = 'Format email tidak valid';
+      isValid = false;
+    }
   }
 
   // Validate Name
-  if (!inputEmailNama.value.trim()) {
-    errorEmailNama.textContent = 'Nama pengadu wajib diisi';
-    isValid = false;
+  if (inputEmailNama) {
+    if (!inputEmailNama.value.trim()) {
+      if (errorEmailNama) errorEmailNama.textContent = 'Nama pengadu wajib diisi';
+      isValid = false;
+    }
   }
 
   // Validate NIM
-  if (!inputEmailNim.value.trim()) {
-    errorEmailNim.textContent = 'NIM pengadu wajib diisi';
-    isValid = false;
+  if (inputEmailNim) {
+    if (!inputEmailNim.value.trim()) {
+      if (errorEmailNim) errorEmailNim.textContent = 'NIM pengadu wajib diisi';
+      isValid = false;
+    }
   }
 
   // Validate Contact Email
-  const fromVal = inputEmailFrom.value.trim();
-  if (!fromVal) {
-    errorEmailFrom.textContent = 'Email hubungi wajib diisi';
-    isValid = false;
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromVal)) {
-    errorEmailFrom.textContent = 'Format email tidak valid';
-    isValid = false;
+  if (inputEmailFrom) {
+    const fromVal = inputEmailFrom.value.trim();
+    if (!fromVal) {
+      if (errorEmailFrom) errorEmailFrom.textContent = 'Email hubungi wajib diisi';
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromVal)) {
+      if (errorEmailFrom) errorEmailFrom.textContent = 'Format email tidak valid';
+      isValid = false;
+    }
   }
 
   // Validate Subject
-  if (!inputEmailSubject.value.trim()) {
-    errorEmailSubject.textContent = 'Subjek keluhan wajib diisi';
-    isValid = false;
+  if (inputEmailSubject) {
+    if (!inputEmailSubject.value.trim()) {
+      if (errorEmailSubject) errorEmailSubject.textContent = 'Subjek keluhan wajib diisi';
+      isValid = false;
+    }
   }
 
   // Validate Message
-  if (!inputEmailMessage.value.trim()) {
-    errorEmailMessage.textContent = 'Pesan keluhan wajib diisi';
-    isValid = false;
+  if (inputEmailMessage) {
+    if (!inputEmailMessage.value.trim()) {
+      if (errorEmailMessage) errorEmailMessage.textContent = 'Pesan keluhan wajib diisi';
+      isValid = false;
+    }
   }
 
   return isValid;
 }
 
-btnSubmitEmailModal.addEventListener('click', async () => {
+safeAddListener(btnSubmitEmailModal, 'click', async () => {
   if (!validateEmailForm()) return;
 
   setEmailModalLoading(true);
@@ -1003,12 +1028,12 @@ btnSubmitEmailModal.addEventListener('click', async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        to: inputEmailTo.value.trim(),
-        subject: inputEmailSubject.value.trim(),
-        nama: inputEmailNama.value.trim(),
-        nim: inputEmailNim.value.trim(),
-        emailPengirim: inputEmailFrom.value.trim(),
-        pesan: inputEmailMessage.value.trim()
+        to: inputEmailTo ? inputEmailTo.value.trim() : '',
+        subject: inputEmailSubject ? inputEmailSubject.value.trim() : '',
+        nama: inputEmailNama ? inputEmailNama.value.trim() : '',
+        nim: inputEmailNim ? inputEmailNim.value.trim() : '',
+        emailPengirim: inputEmailFrom ? inputEmailFrom.value.trim() : '',
+        pesan: inputEmailMessage ? inputEmailMessage.value.trim() : ''
       })
     });
 
@@ -1025,14 +1050,14 @@ btnSubmitEmailModal.addEventListener('click', async () => {
 });
 
 function setEmailModalLoading(isLoading) {
-  btnSubmitEmailModal.disabled = isLoading;
-  btnCancelEmailModal.disabled = isLoading;
+  if (btnSubmitEmailModal) btnSubmitEmailModal.disabled = isLoading;
+  if (btnCancelEmailModal) btnCancelEmailModal.disabled = isLoading;
   if (isLoading) {
-    btnSubmitEmailModalText.classList.add('hidden');
-    btnSubmitEmailModalSpinner.classList.remove('hidden');
+    if (btnSubmitEmailModalText) btnSubmitEmailModalText.classList.add('hidden');
+    if (btnSubmitEmailModalSpinner) btnSubmitEmailModalSpinner.classList.remove('hidden');
   } else {
-    btnSubmitEmailModalText.classList.remove('hidden');
-    btnSubmitEmailModalSpinner.classList.add('hidden');
+    if (btnSubmitEmailModalText) btnSubmitEmailModalText.classList.remove('hidden');
+    if (btnSubmitEmailModalSpinner) btnSubmitEmailModalSpinner.classList.add('hidden');
   }
 }
 
