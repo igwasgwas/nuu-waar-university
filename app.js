@@ -4,7 +4,7 @@
 const SUPABASE_URL = "https://mmfdqefxmmmgtiqapuon.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_RAvTKS5CgOyfS-pttHh7SA_Bs5Kqoky";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================================
 // OOP Models — Inheritance, Polymorphism, Encapsulation
@@ -280,7 +280,7 @@ const toastIconError = document.getElementById('toast-icon-error');
 const toastMessage = document.getElementById('toast-message');
 
 // Global Auth State Change Listener
-supabase.auth.onAuthStateChange((event, session) => {
+supabaseClient.auth.onAuthStateChange((event, session) => {
   state.user = session ? session.user : null;
   state.loading = false;
   updateAuthStateUI();
@@ -413,12 +413,12 @@ authForm.addEventListener('submit', async (e) => {
 
   try {
     if (isRegisterMode) {
-      const { error: signUpError } = await supabase.auth.signUp({ email, password });
+      const { error: signUpError } = await supabaseClient.auth.signUp({ email, password });
       if (signUpError) throw signUpError;
       alert('Pendaftaran berhasil! Silakan masuk dengan akun Anda.');
       resetLoginForm();
     } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      const { error: signInError } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (signInError) throw signInError;
     }
   } catch (err) {
@@ -443,7 +443,7 @@ function showAuthError(message) {
 
 // Handle Logout
 btnLogout.addEventListener('click', async () => {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
 });
 
 // ============================================================
