@@ -1518,3 +1518,37 @@ if (btnCloseAnnouncement) {
     }
   });
 }
+
+// ============================================================
+// KHS / Transkrip Modal Logic
+// ============================================================
+const btnOpenKhs = document.getElementById('btn-open-khs');
+const btnCloseKhs = document.getElementById('btn-close-khs');
+const khsModal = document.getElementById('khs-modal');
+const khsModalContent = document.getElementById('khs-modal-content');
+
+if (btnOpenKhs) {
+  safeAddListener(btnOpenKhs, 'click', () => {
+    if (khsModal && khsModalContent) {
+      khsModal.classList.remove('hidden');
+      khsModal.classList.add('flex');
+      setTimeout(() => {
+        khsModalContent.classList.remove('scale-95', 'opacity-0');
+        khsModalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+  });
+}
+
+if (btnCloseKhs) {
+  safeAddListener(btnCloseKhs, 'click', () => {
+    if (khsModal && khsModalContent) {
+      khsModalContent.classList.remove('scale-100', 'opacity-100');
+      khsModalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        khsModal.classList.remove('flex');
+        khsModal.classList.add('hidden');
+      }, 300);
+    }
+  });
+}

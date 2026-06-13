@@ -143,61 +143,149 @@
 
       <!-- BERANDA VIEW (HOME DASHBOARD) -->
       <div id="beranda-view" class="space-y-8 animate-fade-in">
-        <div class="mb-8">
+        <div class="mb-4">
           <h2 class="text-2xl sm:text-3xl font-bold text-white">Selamat Datang!</h2>
           <p class="text-white/50 mt-1">Portal Informasi Akademik Terpadu</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Profil KTM Card -->
-          <div class="lg:col-span-2 glass-card p-6 border-l-4 border-l-amber-500 relative overflow-hidden group">
-            <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/5 rounded-full blur-3xl transition-transform group-hover:scale-110"></div>
-            <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start relative z-10">
-              <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-800 border-4 border-white/10 shadow-xl overflow-hidden shrink-0 flex items-center justify-center">
-                <i data-lucide="user" class="w-12 h-12 text-white/30"></i>
-              </div>
-              <div class="flex-1 text-center sm:text-left space-y-3">
-                <div>
-                  <h3 class="text-2xl font-bold text-white" id="beranda-nama">Mahasiswa Nuu Waar</h3>
-                  <p class="text-amber-400 font-mono text-lg mt-1" id="beranda-nim">NIM: 0000000000</p>
+          
+          <!-- Kiri & Tengah: Profil, Kalender & Info Kampus -->
+          <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Profil KTM Card -->
+            <div class="glass-card p-6 border-l-4 border-l-amber-500 relative overflow-hidden group">
+              <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/5 rounded-full blur-3xl transition-transform group-hover:scale-110"></div>
+              <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start relative z-10">
+                <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-800 border-4 border-white/10 shadow-xl overflow-hidden shrink-0 flex items-center justify-center">
+                  <i data-lucide="user" class="w-12 h-12 text-white/30"></i>
                 </div>
-                <div class="inline-flex px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/20">
-                  Status: AKTIF
-                </div>
-                <div class="pt-4 border-t border-white/10 grid grid-cols-2 gap-4">
+                <div class="flex-1 text-center sm:text-left space-y-3">
                   <div>
-                    <p class="text-white/40 text-[10px] uppercase tracking-wider mb-1">Program Studi</p>
-                    <p class="text-white text-sm font-semibold">Teknik Informatika</p>
+                    <h3 class="text-2xl font-bold text-white" id="beranda-nama">Mahasiswa Nuu Waar</h3>
+                    <p class="text-amber-400 font-mono text-lg mt-1" id="beranda-nim">NIM: 0000000000</p>
                   </div>
-                  <div>
-                    <p class="text-white/40 text-[10px] uppercase tracking-wider mb-1">Semester</p>
-                    <p class="text-white text-sm font-semibold">Ganjil 2026/2027</p>
+                  <div class="inline-flex px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/20">
+                    Status: AKTIF
+                  </div>
+                  <div class="pt-4 border-t border-white/10 grid grid-cols-2 gap-4">
+                    <div>
+                      <p class="text-white/40 text-[10px] uppercase tracking-wider mb-1">Program Studi</p>
+                      <p class="text-white text-sm font-semibold">Teknik Informatika</p>
+                    </div>
+                    <div>
+                      <p class="text-white/40 text-[10px] uppercase tracking-wider mb-1">Semester</p>
+                      <p class="text-white text-sm font-semibold">Ganjil 2026/2027</p>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Grid 2 Kolom untuk Kalender & About Us -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <!-- Kalender Akademik -->
+              <div class="glass-card p-6">
+                <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i data-lucide="calendar-check" class="w-5 h-5 text-emerald-400"></i> Kalender Akademik</h4>
+                <div class="space-y-4">
+                  <div class="p-3 bg-white/5 rounded-xl border border-white/10 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
+                    <p class="text-xs text-white/50 mb-1">10 Okt - 24 Okt 2026</p>
+                    <p class="text-sm font-semibold text-white">Ujian Tengah Semester (UTS)</p>
+                    <p class="text-[10px] text-rose-400 mt-2 font-mono">H-118 Hari</p>
+                  </div>
+                  <div class="p-3 bg-white/5 rounded-xl border border-white/10 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <p class="text-xs text-white/50 mb-1">15 Des - 30 Des 2026</p>
+                    <p class="text-sm font-semibold text-white">Ujian Akhir Semester (UAS)</p>
+                    <p class="text-[10px] text-blue-400 mt-2 font-mono">H-184 Hari</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- About Us -->
+              <div class="glass-card p-6 bg-gradient-to-br from-slate-800/80 to-slate-900/80">
+                <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i data-lucide="info" class="w-5 h-5 text-blue-400"></i> About Us</h4>
+                <p class="text-sm text-white/70 leading-relaxed mb-4">
+                  Nuu Waar University adalah pusat keunggulan pendidikan yang berdedikasi mencetak generasi inovator masa depan berbasis teknologi mutakhir.
+                </p>
+                <div class="text-xs text-white/50 space-y-2">
+                  <p class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3"></i> Jl. Pendidikan No. 1, Nuu Waar</p>
+                  <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3 h-3"></i> info@nuwaar.ac.id</p>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <!-- Academic Stats -->
-          <div class="glass-card p-6 flex flex-col justify-between">
-            <div>
-              <h4 class="text-white/60 text-xs uppercase tracking-wider font-bold mb-4">Ringkasan Akademik</h4>
-              <div class="space-y-4">
-                <div class="flex justify-between items-end border-b border-white/5 pb-2">
-                  <span class="text-white/70 text-sm">IPK Kumulatif</span>
-                  <span class="text-2xl font-bold text-amber-400">3.85</span>
-                </div>
-                <div class="flex justify-between items-end border-b border-white/5 pb-2">
-                  <span class="text-white/70 text-sm">Total SKS Lulus</span>
-                  <span class="text-xl font-bold text-white">124 <span class="text-xs text-white/40 font-normal">/ 144</span></span>
+          <!-- Kanan: Statistik, Tracker & Agenda -->
+          <div class="space-y-6">
+            
+            <!-- Academic Stats & KHS Button -->
+            <div class="glass-card p-6 flex flex-col justify-between">
+              <div>
+                <h4 class="text-white/60 text-xs uppercase tracking-wider font-bold mb-4">Ringkasan Akademik</h4>
+                <div class="space-y-4">
+                  <div class="flex justify-between items-end border-b border-white/5 pb-2">
+                    <span class="text-white/70 text-sm">IPK Kumulatif</span>
+                    <span class="text-2xl font-bold text-amber-400">3.85</span>
+                  </div>
+                  <div class="flex justify-between items-end border-b border-white/5 pb-2">
+                    <span class="text-white/70 text-sm">Total SKS Lulus</span>
+                    <span class="text-xl font-bold text-white">124 <span class="text-xs text-white/40 font-normal">/ 144</span></span>
+                  </div>
                 </div>
               </div>
+              <button id="btn-open-khs" class="mt-6 w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                Lihat KHS / Transkrip
+              </button>
             </div>
-            <button class="mt-6 w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
-              <i data-lucide="file-text" class="w-4 h-4"></i>
-              Lihat KHS / Transkrip
-            </button>
+
+            <!-- Target Mahasiswa -->
+            <div class="glass-card p-6">
+              <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i data-lucide="target" class="w-5 h-5 text-rose-400"></i> Target Semester Ini</h4>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-3">
+                  <div class="mt-0.5 w-4 h-4 rounded border border-emerald-500 bg-emerald-500/20 flex items-center justify-center shrink-0">
+                    <i data-lucide="check" class="w-3 h-3 text-emerald-400"></i>
+                  </div>
+                  <span class="text-sm text-white/40 line-through">Bayar UKT & Isi KRS</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div class="mt-0.5 w-4 h-4 rounded border border-white/20 bg-white/5 shrink-0"></div>
+                  <span class="text-sm text-white/80">Lulus Sertifikasi TOEFL 500+</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div class="mt-0.5 w-4 h-4 rounded border border-white/20 bg-white/5 shrink-0"></div>
+                  <span class="text-sm text-white/80">Pertahankan IPK &gt; 3.80</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Tracker Aktif -->
+            <div class="glass-card p-6">
+              <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i data-lucide="activity" class="w-5 h-5 text-amber-400"></i> Tracker Aktif</h4>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-white/60">Kehadiran Perkuliahan</span>
+                <span class="text-xs font-bold text-emerald-400">92%</span>
+              </div>
+              <div class="w-full bg-white/10 rounded-full h-2 mb-4">
+                <div class="bg-emerald-400 h-2 rounded-full" style="width: 92%"></div>
+              </div>
+              
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-white/60">Tugas Terkumpul</span>
+                <span class="text-xs font-bold text-blue-400">15/18</span>
+              </div>
+              <div class="w-full bg-white/10 rounded-full h-2">
+                <div class="bg-blue-400 h-2 rounded-full" style="width: 83%"></div>
+              </div>
+            </div>
+
           </div>
+
         </div>
       </div>
 
@@ -719,6 +807,82 @@
       <div class="px-6 py-4 border-t border-white/10 bg-black/20 flex justify-end">
         <button id="btn-close-announcement" class="px-6 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/25 transition-all duration-200 cursor-pointer">
           Saya Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KHS / Transkrip Modal -->
+  <div id="khs-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 items-center justify-center hidden">
+    <div class="glass-card w-full max-w-3xl p-0 overflow-hidden scale-95 opacity-0 transition-all duration-300" id="khs-modal-content">
+      <div class="bg-gradient-to-r from-slate-800 to-slate-900 px-6 py-4 flex items-center justify-between border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <i data-lucide="file-text" class="w-5 h-5 text-amber-400"></i>
+          <h3 class="text-lg font-bold text-white">Kartu Hasil Studi (KHS)</h3>
+        </div>
+        <button id="btn-close-khs" class="text-white/50 hover:text-white transition-colors cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+        <div class="mb-6 grid grid-cols-2 gap-4 border-b border-white/10 pb-4">
+          <div>
+            <p class="text-white/40 text-xs">Semester</p>
+            <p class="text-white font-semibold">Genap 2025/2026</p>
+          </div>
+          <div class="text-right">
+            <p class="text-white/40 text-xs">Indeks Prestasi Semester (IPS)</p>
+            <p class="text-amber-400 text-xl font-bold">3.92</p>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-white/80">
+            <thead class="text-xs text-white/50 uppercase bg-white/5 border-b border-white/10">
+              <tr>
+                <th class="px-4 py-3 rounded-tl-lg">Kode MK</th>
+                <th class="px-4 py-3">Mata Kuliah</th>
+                <th class="px-4 py-3 text-center">SKS</th>
+                <th class="px-4 py-3 text-center rounded-tr-lg">Nilai</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-4 py-3 font-mono text-xs">IF3101</td>
+                <td class="px-4 py-3 font-semibold text-white">Kecerdasan Buatan (AI)</td>
+                <td class="px-4 py-3 text-center">3</td>
+                <td class="px-4 py-3 text-center font-bold text-emerald-400">A</td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-4 py-3 font-mono text-xs">IF3102</td>
+                <td class="px-4 py-3 font-semibold text-white">Pemrograman Web Lanjut</td>
+                <td class="px-4 py-3 text-center">3</td>
+                <td class="px-4 py-3 text-center font-bold text-emerald-400">A</td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-4 py-3 font-mono text-xs">IF3103</td>
+                <td class="px-4 py-3 font-semibold text-white">Sistem Basis Data Terdistribusi</td>
+                <td class="px-4 py-3 text-center">4</td>
+                <td class="px-4 py-3 text-center font-bold text-blue-400">B+</td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-4 py-3 font-mono text-xs">IF3104</td>
+                <td class="px-4 py-3 font-semibold text-white">Jaringan Komputer</td>
+                <td class="px-4 py-3 text-center">3</td>
+                <td class="px-4 py-3 text-center font-bold text-emerald-400">A</td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-4 py-3 font-mono text-xs">IF3105</td>
+                <td class="px-4 py-3 font-semibold text-white">Metodologi Penelitian</td>
+                <td class="px-4 py-3 text-center">2</td>
+                <td class="px-4 py-3 text-center font-bold text-emerald-400">A</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="px-6 py-4 bg-black/20 border-t border-white/10 flex justify-end">
+        <button class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold transition-all cursor-pointer flex items-center gap-2">
+          <i data-lucide="download" class="w-4 h-4"></i> Unduh PDF
         </button>
       </div>
     </div>
