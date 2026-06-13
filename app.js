@@ -337,11 +337,40 @@ function showToast(type, message) {
 }
 
 // Update UI based on Auth State
+let hasShownAnnouncement = false;
 function updateAuthStateUI() {
   loadingScreen.classList.add('hidden');
   if (state.user) {
     authSection.classList.add('hidden');
     dashboardSection.classList.remove('hidden');
+    
+    // Set Beranda Profile based on user email
+    const berandaNama = document.getElementById('beranda-nama');
+    const berandaNim = document.getElementById('beranda-nim');
+    if (berandaNama && berandaNim && state.user.email) {
+      const emailName = state.user.email.split('@')[0];
+      berandaNama.textContent = 'Mahasiswa ' + emailName.charAt(0).toUpperCase() + emailName.slice(1);
+      // Generate a mock NIM based on string length to look realistic
+      berandaNim.textContent = 'NIM: 2026' + (emailName.length * 123456).toString().padStart(6, '0');
+    }
+
+    if (!hasShownAnnouncement) {
+      setTimeout(() => {
+        const modal = document.getElementById('announcement-modal');
+        const modalContent = document.getElementById('announcement-modal-content');
+        if (modal && modalContent) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          // small delay to allow flex to apply before opacity transition
+          setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+          }, 10);
+        }
+      }, 500); // show half a second after dashboard loads
+      hasShownAnnouncement = true;
+    }
+
     fetchStudents();
   } else {
     authSection.classList.remove('hidden');
@@ -1064,25 +1093,49 @@ function setEmailModalLoading(isLoading) {
 // ============================================================
 // Tab Navigation (Mahasiswa vs Agenda)
 // ============================================================
+const navBtnBeranda = document.getElementById('nav-btn-beranda');
 const navBtnMahasiswa = document.getElementById('nav-btn-mahasiswa');
 const navBtnAgenda = document.getElementById('nav-btn-agenda');
+const berandaView = document.getElementById('beranda-view');
 const mahasiswaView = document.getElementById('mahasiswa-view');
 const agendaView = document.getElementById('agenda-view');
 
-safeAddListener(navBtnMahasiswa, 'click', () => {
-  navBtnMahasiswa.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-white transition-all cursor-pointer';
-  navBtnAgenda.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold text-white/60 hover:text-white transition-all cursor-pointer';
-  mahasiswaView.classList.remove('hidden');
-  agendaView.classList.add('hidden');
-});
+function resetTabs() {
+  const activeClass = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-white transition-all cursor-pointer';
+  const inactiveClass = 'px-4 py-1.5 rounded-lg text-xs font-semibold text-white/60 hover:text-white transition-all cursor-pointer';
+  if(navBtnBeranda) navBtnBeranda.className = inactiveClass;
+  if(navBtnMahasiswa) navBtnMahasiswa.className = inactiveClass;
+  if(navBtnAgenda) navBtnAgenda.className = inactiveClass;
+  if(berandaView) berandaView.classList.add('hidden');
+  if(mahasiswaView) mahasiswaView.classList.add('hidden');
+  if(agendaView) agendaView.classList.add('hidden');
+  return activeClass;
+}
 
-safeAddListener(navBtnAgenda, 'click', () => {
-  navBtnAgenda.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-white transition-all cursor-pointer';
-  navBtnMahasiswa.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold text-white/60 hover:text-white transition-all cursor-pointer';
-  agendaView.classList.remove('hidden');
-  mahasiswaView.classList.add('hidden');
-  renderAgenda();
-});
+if(navBtnBeranda) {
+  safeAddListener(navBtnBeranda, 'click', () => {
+    const activeClass = resetTabs();
+    navBtnBeranda.className = activeClass;
+    if(berandaView) berandaView.classList.remove('hidden');
+  });
+}
+
+if(navBtnMahasiswa) {
+  safeAddListener(navBtnMahasiswa, 'click', () => {
+    const activeClass = resetTabs();
+    navBtnMahasiswa.className = activeClass;
+    if(mahasiswaView) mahasiswaView.classList.remove('hidden');
+  });
+}
+
+if(navBtnAgenda) {
+  safeAddListener(navBtnAgenda, 'click', () => {
+    const activeClass = resetTabs();
+    navBtnAgenda.className = activeClass;
+    if(agendaView) agendaView.classList.remove('hidden');
+    renderAgenda();
+  });
+}
 
 // ============================================================
 // Export & Import JSON
@@ -1445,3 +1498,23 @@ safeAddListener(btnForgotPassword, 'click', async () => {
     btnForgotPassword.textContent = originalText;
   }
 });
+
+// ============================================================
+// Announcement Modal Logic
+// ============================================================
+const btnCloseAnnouncement = document.getElementById('btn-close-announcement');
+const announcementModal = document.getElementById('announcement-modal');
+const announcementModalContent = document.getElementById('announcement-modal-content');
+
+if (btnCloseAnnouncement) {
+  safeAddListener(btnCloseAnnouncement, 'click', () => {
+    if (announcementModalContent && announcementModal) {
+      announcementModalContent.classList.remove('scale-100', 'opacity-100');
+      announcementModalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        announcementModal.classList.remove('flex');
+        announcementModal.classList.add('hidden');
+      }, 300);
+    }
+  });
+}

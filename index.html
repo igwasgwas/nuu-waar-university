@@ -120,7 +120,10 @@
           
           <!-- Navigation Tabs -->
           <div class="hidden md:flex items-center gap-1.5 ml-6 bg-white/5 p-1 rounded-xl border border-white/10">
-            <button id="nav-btn-mahasiswa" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-white transition-all cursor-pointer">
+            <button id="nav-btn-beranda" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-white transition-all cursor-pointer">
+              Beranda
+            </button>
+            <button id="nav-btn-mahasiswa" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-white/60 hover:text-white transition-all cursor-pointer">
               Data Mahasiswa
             </button>
             <button id="nav-btn-agenda" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-white/60 hover:text-white transition-all cursor-pointer">
@@ -137,8 +140,69 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+      <!-- BERANDA VIEW (HOME DASHBOARD) -->
+      <div id="beranda-view" class="space-y-8 animate-fade-in">
+        <div class="mb-8">
+          <h2 class="text-2xl sm:text-3xl font-bold text-white">Selamat Datang!</h2>
+          <p class="text-white/50 mt-1">Portal Informasi Akademik Terpadu</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Profil KTM Card -->
+          <div class="lg:col-span-2 glass-card p-6 border-l-4 border-l-amber-500 relative overflow-hidden group">
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/5 rounded-full blur-3xl transition-transform group-hover:scale-110"></div>
+            <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start relative z-10">
+              <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-800 border-4 border-white/10 shadow-xl overflow-hidden shrink-0 flex items-center justify-center">
+                <i data-lucide="user" class="w-12 h-12 text-white/30"></i>
+              </div>
+              <div class="flex-1 text-center sm:text-left space-y-3">
+                <div>
+                  <h3 class="text-2xl font-bold text-white" id="beranda-nama">Mahasiswa Nuu Waar</h3>
+                  <p class="text-amber-400 font-mono text-lg mt-1" id="beranda-nim">NIM: 0000000000</p>
+                </div>
+                <div class="inline-flex px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/20">
+                  Status: AKTIF
+                </div>
+                <div class="pt-4 border-t border-white/10 grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-white/40 text-[10px] uppercase tracking-wider mb-1">Program Studi</p>
+                    <p class="text-white text-sm font-semibold">Teknik Informatika</p>
+                  </div>
+                  <div>
+                    <p class="text-white/40 text-[10px] uppercase tracking-wider mb-1">Semester</p>
+                    <p class="text-white text-sm font-semibold">Ganjil 2026/2027</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Academic Stats -->
+          <div class="glass-card p-6 flex flex-col justify-between">
+            <div>
+              <h4 class="text-white/60 text-xs uppercase tracking-wider font-bold mb-4">Ringkasan Akademik</h4>
+              <div class="space-y-4">
+                <div class="flex justify-between items-end border-b border-white/5 pb-2">
+                  <span class="text-white/70 text-sm">IPK Kumulatif</span>
+                  <span class="text-2xl font-bold text-amber-400">3.85</span>
+                </div>
+                <div class="flex justify-between items-end border-b border-white/5 pb-2">
+                  <span class="text-white/70 text-sm">Total SKS Lulus</span>
+                  <span class="text-xl font-bold text-white">124 <span class="text-xs text-white/40 font-normal">/ 144</span></span>
+                </div>
+              </div>
+            </div>
+            <button class="mt-6 w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+              <i data-lucide="file-text" class="w-4 h-4"></i>
+              Lihat KHS / Transkrip
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- MAHASISWA VIEW (STUDENT CRUD) -->
-      <div id="mahasiswa-view" class="space-y-8">
+      <div id="mahasiswa-view" class="space-y-8 hidden">
         <!-- Welcome Header -->
         <div class="mb-8">
         <h2 class="text-2xl sm:text-3xl font-bold text-white">Dashboard</h2>
@@ -623,6 +687,39 @@
             <i data-lucide="send" class="w-4 h-4"></i>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announcement Pop-up Modal -->
+  <div id="announcement-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 items-center justify-center hidden">
+    <div class="glass-card w-full max-w-lg p-0 overflow-hidden scale-95 opacity-0 transition-all duration-300" id="announcement-modal-content">
+      <div class="bg-gradient-to-r from-rose-500 to-rose-600 px-6 py-4 relative">
+        <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mt-10 -mr-10"></div>
+        <div class="flex items-center gap-3 relative z-10">
+          <i data-lucide="bell-ring" class="w-6 h-6 text-white animate-bounce"></i>
+          <h3 class="text-xl font-bold text-white">Pengumuman Akademik</h3>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-white/80 text-sm leading-relaxed">
+          Halo Civitas Akademika Nuu Waar University!
+        </p>
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+          <ul class="text-white/70 text-sm space-y-3 list-disc pl-4">
+            <li>Masa pengisian <strong class="text-amber-400">Kartu Rencana Studi (KRS)</strong> Semester Ganjil diperpanjang hingga tanggal 30 Juni 2026.</li>
+            <li>Pembayaran Uang Kuliah Tunggal (UKT) dapat dilakukan melalui virtual account bank yang telah bekerja sama.</li>
+            <li>Perkuliahan aktif akan dimulai pada 15 Juli 2026.</li>
+          </ul>
+        </div>
+        <p class="text-white/50 text-xs italic">
+          Harap selesaikan administrasi tepat waktu untuk menghindari kendala akademik.
+        </p>
+      </div>
+      <div class="px-6 py-4 border-t border-white/10 bg-black/20 flex justify-end">
+        <button id="btn-close-announcement" class="px-6 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/25 transition-all duration-200 cursor-pointer">
+          Saya Mengerti
+        </button>
       </div>
     </div>
   </div>
