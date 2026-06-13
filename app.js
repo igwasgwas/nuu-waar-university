@@ -1340,6 +1340,9 @@ function addChatMessage(message, isBot = false) {
 
 async function handleChatbotSend() {
   const msg = chatbotInput.value.trim();
+  const apiKeyInput = document.getElementById('chatbot-apikey');
+  const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+  
   if (!msg) return;
   
   // User message
@@ -1358,25 +1361,56 @@ async function handleChatbotSend() {
   chatbotMessages.appendChild(typingDiv);
   chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
   
-  // Fake response logic for mockup
-  setTimeout(() => {
-    typingDiv.remove();
-    let reply = "Maaf, saya masih dalam tahap pengembangan. Namun saya bisa membantu memberikan informasi seputar website manajemen data mahasiswa Nuu Waar University.";
+  if (!apiKey) {
+    // Fake response logic for mockup
+    setTimeout(() => {
+      typingDiv.remove();
+      let reply = "Saya butuh API Key OpenAI untuk bisa berpikir cerdas. Silakan masukkan API Key di kolom atas.";
+      
+      const lMsg = msg.toLowerCase();
+      if (lMsg.includes('halo') || lMsg.includes('hai')) {
+        reply = "Halo! Saya TechBot. Masukkan API Key agar kita bisa mengobrol lebih cerdas.";
+      } else if (lMsg.includes('mahasiswa')) {
+        reply = `Saat ini terdapat ${state.students.length} mahasiswa terdaftar di sistem.`;
+      } else if (lMsg.includes('agenda')) {
+        const agendas = getAgendas();
+        reply = `Terdapat ${agendas.length} agenda kampus yang terdaftar.`;
+      }
+      addChatMessage(reply, true);
+    }, 1000);
+    return;
+  }
+  
+  // OpenAI API Call
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: 'Kamu adalah TechBot, asisten virtual kampus Nuu Waar University. Jawablah secara singkat dan ramah.' },
+          { role: 'user', content: msg }
+        ]
+      })
+    });
     
-    const lMsg = msg.toLowerCase();
-    if (lMsg.includes('halo') || lMsg.includes('hai')) {
-      reply = "Halo! Ada yang bisa saya bantu terkait kampus kita?";
-    } else if (lMsg.includes('mahasiswa')) {
-      reply = `Saat ini terdapat ${state.students.length} mahasiswa terdaftar di sistem. Anda bisa melihat datanya di tab 'Data Mahasiswa'.`;
-    } else if (lMsg.includes('agenda')) {
-      const agendas = getAgendas();
-      reply = `Terdapat ${agendas.length} agenda kampus yang terdaftar. Buka tab 'Agenda Kampus' untuk selengkapnya.`;
-    } else if (lMsg.includes('ipk')) {
-      reply = "Data mahasiswa mencakup informasi IPK. Anda juga dapat mengurutkannya (sorting) dengan tombol panah di dashboard.";
+    const data = await res.json();
+    typingDiv.remove();
+    
+    if (!res.ok) {
+      throw new Error(data.error?.message || 'Gagal menghubungi OpenAI');
     }
     
+    const reply = data.choices[0].message.content;
     addChatMessage(reply, true);
-  }, 1000);
+  } catch (err) {
+    typingDiv.remove();
+    addChatMessage(`Maaf, terjadi kesalahan: ${err.message}`, true);
+  }
 }
 
 safeAddListener(chatbotSend, 'click', handleChatbotSend);
@@ -1384,3 +1418,30 @@ safeAddListener(chatbotInput, 'keydown', (e) => {
   if (e.key === 'Enter') handleChatbotSend();
 });
 
+// ============================================================
+// Forgot Password Logic
+// ============================================================
+const btnForgotPassword = document.getElementById('btn-forgot-password');
+safeAddListener(btnForgotPassword, 'click', async () => {
+  const email = emailInput.value.trim();
+  if (!email) {
+    showAuthError('Masukkan email Anda terlebih dahulu di kolom atas untuk mereset kata sandi');
+    return;
+  }
+  
+  const originalText = btnForgotPassword.textContent;
+  btnForgotPassword.textContent = 'Memproses...';
+  
+  try {
+    const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    
+    if (error) throw error;
+    alert(`Tautan pemulihan kata sandi telah dikirim ke ${email}. Silakan cek kotak masuk Anda.`);
+  } catch (err) {
+    showAuthError(err.message || 'Gagal mengirim email pemulihan');
+  } finally {
+    btnForgotPassword.textContent = originalText;
+  }
+});
