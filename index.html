@@ -182,40 +182,16 @@
               </div>
             </div>
 
-            <!-- Grid 2 Kolom untuk Kalender & About Us -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              <!-- Kalender Akademik -->
-              <div class="glass-card p-6">
-                <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i data-lucide="calendar-check" class="w-5 h-5 text-emerald-400"></i> Kalender Akademik</h4>
-                <div class="space-y-4">
-                  <div class="p-3 bg-white/5 rounded-xl border border-white/10 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
-                    <p class="text-xs text-white/50 mb-1">10 Okt - 24 Okt 2026</p>
-                    <p class="text-sm font-semibold text-white">Ujian Tengah Semester (UTS)</p>
-                    <p class="text-[10px] text-rose-400 mt-2 font-mono">H-118 Hari</p>
-                  </div>
-                  <div class="p-3 bg-white/5 rounded-xl border border-white/10 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-                    <p class="text-xs text-white/50 mb-1">15 Des - 30 Des 2026</p>
-                    <p class="text-sm font-semibold text-white">Ujian Akhir Semester (UAS)</p>
-                    <p class="text-[10px] text-blue-400 mt-2 font-mono">H-184 Hari</p>
-                  </div>
-                </div>
+            <!-- About Us -->
+            <div class="glass-card p-6 bg-gradient-to-br from-slate-800/80 to-slate-900/80">
+              <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i data-lucide="info" class="w-5 h-5 text-blue-400"></i> About Us</h4>
+              <p class="text-sm text-white/70 leading-relaxed mb-4">
+                Nuu Waar University adalah pusat keunggulan pendidikan yang berdedikasi mencetak generasi inovator masa depan berbasis teknologi mutakhir.
+              </p>
+              <div class="text-xs text-white/50 flex flex-col sm:flex-row gap-4">
+                <p class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3"></i> Jl. Pendidikan No. 1, Nuu Waar</p>
+                <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3 h-3"></i> info@nuwaar.ac.id</p>
               </div>
-
-              <!-- About Us -->
-              <div class="glass-card p-6 bg-gradient-to-br from-slate-800/80 to-slate-900/80">
-                <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i data-lucide="info" class="w-5 h-5 text-blue-400"></i> About Us</h4>
-                <p class="text-sm text-white/70 leading-relaxed mb-4">
-                  Nuu Waar University adalah pusat keunggulan pendidikan yang berdedikasi mencetak generasi inovator masa depan berbasis teknologi mutakhir.
-                </p>
-                <div class="text-xs text-white/50 space-y-2">
-                  <p class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3"></i> Jl. Pendidikan No. 1, Nuu Waar</p>
-                  <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3 h-3"></i> info@nuwaar.ac.id</p>
-                </div>
-              </div>
-
             </div>
           </div>
 
@@ -287,6 +263,35 @@
           </div>
 
         </div>
+
+        <!-- Full Year Calendar -->
+        <div class="glass-card p-6 mt-8">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-white/10 pb-4">
+            <h4 class="text-white font-bold flex items-center gap-2 text-xl">
+              <i data-lucide="calendar-days" class="w-6 h-6 text-emerald-400"></i> 
+              Kalender Akademik 2026
+            </h4>
+            <div class="flex flex-wrap items-center gap-4 text-xs">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-sm bg-rose-500/80 border border-rose-400"></div>
+                <span class="text-white/70">UTS (Okt)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-sm bg-blue-500/80 border border-blue-400"></div>
+                <span class="text-white/70">UAS (Des)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500"></div>
+                <span class="text-white/70">Hari Ini</span>
+              </div>
+            </div>
+          </div>
+          
+          <div id="full-calendar-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
       </div>
 
       <!-- MAHASISWA VIEW (STUDENT CRUD) -->
@@ -768,7 +773,7 @@
 
       <!-- Chat Input Area -->
       <div class="p-3 border-t border-white/10 bg-slate-900/50 flex flex-col gap-2">
-        <input id="chatbot-apikey" type="password" placeholder="API Key OpenAI Anda (opsional untuk simulasi)" class="glass-input w-full py-1.5 px-3 text-[10px] text-white/50" title="Disimpan secara lokal.">
+        <!-- API Key input removed for seamless AI -->
         <div class="flex gap-2">
           <input id="chatbot-input" type="text" placeholder="Tanyakan seputar akademik..." class="glass-input flex-1 py-2 px-3 text-xs">
           <button id="chatbot-send" class="px-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl transition-all flex items-center justify-center cursor-pointer">

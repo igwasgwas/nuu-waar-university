@@ -1393,8 +1393,6 @@ function addChatMessage(message, isBot = false) {
 
 async function handleChatbotSend() {
   const msg = chatbotInput.value.trim();
-  const apiKeyInput = document.getElementById('chatbot-apikey');
-  const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
   
   if (!msg) return;
   
@@ -1414,55 +1412,23 @@ async function handleChatbotSend() {
   chatbotMessages.appendChild(typingDiv);
   chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
   
-  if (!apiKey) {
-    // Fake response logic for mockup
-    setTimeout(() => {
-      typingDiv.remove();
-      let reply = "Saya butuh API Key OpenAI untuk bisa berpikir cerdas. Silakan masukkan API Key di kolom atas.";
-      
-      const lMsg = msg.toLowerCase();
-      if (lMsg.includes('halo') || lMsg.includes('hai')) {
-        reply = "Halo! Saya TechBot. Masukkan API Key agar kita bisa mengobrol lebih cerdas.";
-      } else if (lMsg.includes('mahasiswa')) {
-        reply = `Saat ini terdapat ${state.students.length} mahasiswa terdaftar di sistem.`;
-      } else if (lMsg.includes('agenda')) {
-        const agendas = getAgendas();
-        reply = `Terdapat ${agendas.length} agenda kampus yang terdaftar.`;
-      }
-      addChatMessage(reply, true);
-    }, 1000);
-    return;
-  }
-  
-  // OpenAI API Call
+  // Open AI Endpoint call (Pollinations.ai text generation)
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: 'Kamu adalah TechBot, asisten virtual kampus Nuu Waar University. Jawablah secara singkat dan ramah.' },
-          { role: 'user', content: msg }
-        ]
-      })
-    });
+    const systemPrompt = "Kamu adalah TechBot, asisten virtual cerdas dari Nuu Waar University. Jawablah setiap pertanyaan dalam bahasa Indonesia dengan informatif, sopan, dan singkat.";
+    const fullPrompt = `${systemPrompt}\nUser: ${msg}\nTechBot:`;
     
-    const data = await res.json();
-    typingDiv.remove();
+    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`);
     
     if (!res.ok) {
-      throw new Error(data.error?.message || 'Gagal menghubungi OpenAI');
+      throw new Error('Gagal menghubungi AI');
     }
     
-    const reply = data.choices[0].message.content;
+    const reply = await res.text();
+    typingDiv.remove();
     addChatMessage(reply, true);
   } catch (err) {
     typingDiv.remove();
-    addChatMessage(`Maaf, terjadi kesalahan: ${err.message}`, true);
+    addChatMessage(`Maaf, layanan AI sedang sibuk: ${err.message}`, true);
   }
 }
 
@@ -1552,3 +1518,77 @@ if (btnCloseKhs) {
     }
   });
 }
+
+// ============================================================
+// Full Year Calendar Logic
+// ============================================================
+function renderFullYearCalendar(year = 2026) {
+  const container = document.getElementById('full-calendar-grid');
+  if (!container) return;
+  
+  const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  const days = ["S", "S", "R", "K", "J", "S", "M"];
+  
+  // Highlight periods
+  const utsStart = new Date(year, 9, 10); // 10 Okt (Bulan 9 karena 0-indexed)
+  const utsEnd = new Date(year, 9, 24);   // 24 Okt
+  const uasStart = new Date(year, 11, 15); // 15 Des
+  const uasEnd = new Date(year, 11, 30);   // 30 Des
+  const today = new Date(); 
+  
+  let html = '';
+  
+  for (let month = 0; month < 12; month++) {
+    const firstDay = new Date(year, month, 1).getDay(); // 0 = Sunday, 1 = Monday
+    const offset = firstDay === 0 ? 6 : firstDay - 1; // Adjust to make Monday first day
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    let daysHtml = '';
+    
+    // Headers
+    days.forEach(day => {
+      daysHtml += `<div class="text-[10px] font-bold text-white/40 text-center pb-1">${day}</div>`;
+    });
+    
+    // Empty slots before 1st
+    for (let i = 0; i < offset; i++) {
+      daysHtml += `<div class="p-1"></div>`;
+    }
+    
+    // Days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const current = new Date(year, month, day);
+      let classes = "w-6 h-6 flex items-center justify-center text-[10px] rounded-md mx-auto ";
+      
+      const isUts = current >= utsStart && current <= utsEnd;
+      const isUas = current >= uasStart && current <= uasEnd;
+      const isToday = current.getDate() === today.getDate() && current.getMonth() === today.getMonth() && current.getFullYear() === today.getFullYear();
+      
+      if (isUts) {
+        classes += "bg-rose-500/80 text-white font-bold border border-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.4)]";
+      } else if (isUas) {
+        classes += "bg-blue-500/80 text-white font-bold border border-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.4)]";
+      } else if (isToday) {
+        classes += "bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500";
+      } else {
+        classes += "text-white/70 hover:bg-white/10 cursor-pointer";
+      }
+      
+      daysHtml += `<div class="p-0.5"><div class="${classes}">${day}</div></div>`;
+    }
+    
+    html += `
+      <div class="p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+        <h5 class="text-sm font-bold text-white mb-3 text-center border-b border-white/10 pb-2">${monthNames[month]}</h5>
+        <div class="grid grid-cols-7 gap-y-1">
+          ${daysHtml}
+        </div>
+      </div>
+    `;
+  }
+  
+  container.innerHTML = html;
+}
+
+// Render calendar on load
+renderFullYearCalendar();
