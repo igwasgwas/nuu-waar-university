@@ -318,6 +318,7 @@ const btnSortMerge = document.getElementById('btn-sort-merge');
 const btnResetFilters = document.getElementById('btn-reset-filters');
 const btnExportJson = document.getElementById('btn-export-json');
 const btnImportJson = document.getElementById('btn-import-json');
+const inputImportJson = document.getElementById('input-import-json');
 const algorithmInfoContainer = document.getElementById('algorithm-info-container');
 const algorithmInfoText = document.getElementById('algorithm-info-text');
 const studentTableBody = document.getElementById('student-table-body');
@@ -756,13 +757,92 @@ searchInput.addEventListener('input', () => {
 
 if (btnExportJson) {
   btnExportJson.addEventListener('click', () => {
-    showToast('success', 'Fitur Export JSON (Simulasi)');
+    if (state.students.length === 0) {
+      showToast('error', 'Tidak ada data untuk diekspor');
+      return;
+    }
+    
+    // Convert current student objects to plain JSON array
+    const dataToExport = state.students.map(mhs => mhs.toObject());
+    
+    // Create a blob and trigger download
+    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `data_mahasiswa_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('success', 'Data JSON berhasil diekspor');
   });
 }
 
-if (btnImportJson) {
+if (btnImportJson && inputImportJson) {
   btnImportJson.addEventListener('click', () => {
-    showToast('success', 'Fitur Import JSON (Simulasi)');
+    inputImportJson.click();
+  });
+
+  inputImportJson.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsedData = JSON.parse(text);
+      
+      if (!Array.isArray(parsedData)) {
+        throw new Error('Format JSON tidak valid. Harus berupa array data mahasiswa.');
+      }
+
+      // Show loading
+      studentTableLoading.classList.remove('hidden');
+      studentTableEmpty.classList.add('hidden');
+      studentTableBody.innerHTML = '';
+      
+      let successCount = 0;
+      let errorCount = 0;
+
+      // Import each student sequentially to backend
+      for (const item of parsedData) {
+        try {
+          // Re-create as object to validate
+          const mhs = new Mahasiswa(
+            item.nama || '',
+            item.nim || item.nim_mahasiswa || '',
+            item.programStudi || item.program_studi || '',
+            parseFloat(item.ipk || 0)
+          );
+
+          const res = await fetch('/api/mahasiswa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(mhs.toObject())
+          });
+
+          if (res.ok) {
+            successCount++;
+          } else {
+            errorCount++;
+          }
+        } catch (err) {
+          errorCount++;
+        }
+      }
+
+      showToast('success', `Import selesai: ${successCount} berhasil, ${errorCount} gagal`);
+      
+      // Refresh list
+      fetchStudents();
+      
+    } catch (err) {
+      showToast('error', `Gagal mengimpor file: ${err.message}`);
+    } finally {
+      inputImportJson.value = ''; // Reset file input
+      studentTableLoading.classList.add('hidden');
+    }
   });
 }
 
