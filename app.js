@@ -1538,63 +1538,44 @@ async function handleChatbotSend() {
       <span class="animate-bounce">.</span><span class="animate-bounce" style="animation-delay: 0.1s">.</span><span class="animate-bounce" style="animation-delay: 0.2s">.</span>
     </div>
   `;
-  chatbotMessages.appendChild(typingDiv);
-  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-  
-  // Handle setkey command
-  if (msg.startsWith('/setkey ')) {
-    const key = msg.split(' ')[1];
-    if (key) {
-      localStorage.setItem('gemini_api_key', key.trim());
-      typingDiv.remove();
-      addChatMessage("API Key Gemini berhasil disimpan secara lokal! Sekarang Anda bisa bertanya kepada saya.", true);
-    } else {
-      typingDiv.remove();
-      addChatMessage("Format salah. Gunakan: /setkey [API_KEY_ANDA]", true);
-    }
-    return;
-  }
-
-  const apiKey = localStorage.getItem('gemini_api_key');
-  if (!apiKey) {
-    typingDiv.remove();
-    addChatMessage("Halo! Untuk mengaktifkan otak AI Gemini saya, silakan ketik <code>/setkey [API_KEY_ANDA]</code> di sini. Anda bisa mendapatkannya secara gratis di <a href='https://aistudio.google.com/app/apikey' target='_blank' class='text-cyan-400 underline'>Google AI Studio</a>.", true);
-    return;
-  }
-
-  // Call Gemini API
+  // Call Free AI APIs with Fallback
   try {
-    const systemPrompt = "Kamu adalah TechBot, asisten virtual akademik dari Nuu Waar University. Jawablah setiap pertanyaan dalam bahasa Indonesia dengan informatif, sopan, dan singkat.";
-    
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: `${systemPrompt}\n\nPertanyaan: ${msg}` }]
-          }
-        ],
-        generationConfig: {
-          maxOutputTokens: 500,
-          temperature: 0.7
+    let reply = "";
+    const systemPrompt = "Kamu adalah TechBot, asisten virtual akademik kampus Nuu Waar University. Jawab dalam bahasa Indonesia yang sopan dan singkat.";
+    const fullQuery = `${systemPrompt}\n\nPertanyaan pengguna: ${msg}`;
+
+    try {
+      // 1. Try Pollinations AI (Text Endpoint)
+      const res1 = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullQuery)}?model=openai`);
+      if (!res1.ok) throw new Error('API 1 failed');
+      reply = await res1.text();
+    } catch (err1) {
+      try {
+        // 2. Try Ryzen Gemini API
+        const res2 = await fetch(`https://api.ryzendesu.vip/api/ai/gemini?text=${encodeURIComponent(fullQuery)}`);
+        const data2 = await res2.json();
+        if (data2 && data2.data) {
+          reply = typeof data2.data === 'string' ? data2.data : data2.data.response;
+        } else if (data2 && data2.answer) {
+          reply = data2.answer;
+        } else {
+          throw new Error('API 2 failed');
         }
-      })
-    });
-    
-    if (!response.ok) {
-      const errData = await response.json();
-      if (response.status === 400 && errData.error?.message?.includes("API key")) {
-        throw new Error("API Key tidak valid atau salah. Silakan perbarui dengan perintah /setkey [API_KEY_BARU]");
+      } catch (err2) {
+        // 3. Try AEMT Gemini API
+        const res3 = await fetch(`https://aemt.me/gemini?text=${encodeURIComponent(fullQuery)}`);
+        const data3 = await res3.json();
+        if (data3 && data3.result) {
+          reply = data3.result;
+        } else {
+          throw new Error('API 3 failed');
+        }
       }
-      throw new Error(errData.error?.message || 'Terjadi kesalahan pada server AI.');
     }
-    
-    const data = await response.json();
-    const reply = data.candidates[0].content.parts[0].text;
+
+    if (!reply || reply.includes("Queue full") || reply.includes("error")) {
+      throw new Error("Server AI sedang penuh");
+    }
     
     // Parse basic markdown
     const formattedReply = reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
@@ -1603,7 +1584,7 @@ async function handleChatbotSend() {
     addChatMessage(formattedReply, true);
   } catch (err) {
     typingDiv.remove();
-    addChatMessage(`Maaf, layanan AI sedang terkendala: ${err.message}`, true);
+    addChatMessage(`Maaf, semua server layanan AI kampus saat ini sedang sibuk. Silakan coba beberapa saat lagi.`, true);
   }
 }
 
