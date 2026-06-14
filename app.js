@@ -1541,23 +1541,69 @@ async function handleChatbotSend() {
   chatbotMessages.appendChild(typingDiv);
   chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
   
-  // Open AI Endpoint call (Pollinations.ai text generation)
+  // Handle setkey command
+  if (msg.startsWith('/setkey ')) {
+    const key = msg.split(' ')[1];
+    if (key) {
+      localStorage.setItem('gemini_api_key', key.trim());
+      typingDiv.remove();
+      addChatMessage("API Key Gemini berhasil disimpan secara lokal! Sekarang Anda bisa bertanya kepada saya.", true);
+    } else {
+      typingDiv.remove();
+      addChatMessage("Format salah. Gunakan: /setkey [API_KEY_ANDA]", true);
+    }
+    return;
+  }
+
+  const apiKey = localStorage.getItem('gemini_api_key');
+  if (!apiKey) {
+    typingDiv.remove();
+    addChatMessage("Halo! Untuk mengaktifkan otak AI Gemini saya, silakan ketik <code>/setkey [API_KEY_ANDA]</code> di sini. Anda bisa mendapatkannya secara gratis di <a href='https://aistudio.google.com/app/apikey' target='_blank' class='text-cyan-400 underline'>Google AI Studio</a>.", true);
+    return;
+  }
+
+  // Call Gemini API
   try {
-    const systemPrompt = "Kamu adalah TechBot, asisten virtual cerdas dari Nuu Waar University. Jawablah setiap pertanyaan dalam bahasa Indonesia dengan informatif, sopan, dan singkat.";
-    const fullPrompt = `${systemPrompt}\nUser: ${msg}\nTechBot:`;
+    const systemPrompt = "Kamu adalah TechBot, asisten virtual akademik dari Nuu Waar University. Jawablah setiap pertanyaan dalam bahasa Indonesia dengan informatif, sopan, dan singkat.";
     
-    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`);
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: `${systemPrompt}\n\nPertanyaan: ${msg}` }]
+          }
+        ],
+        generationConfig: {
+          maxOutputTokens: 500,
+          temperature: 0.7
+        }
+      })
+    });
     
-    if (!res.ok) {
-      throw new Error('Gagal menghubungi AI');
+    if (!response.ok) {
+      const errData = await response.json();
+      if (response.status === 400 && errData.error?.message?.includes("API key")) {
+        throw new Error("API Key tidak valid atau salah. Silakan perbarui dengan perintah /setkey [API_KEY_BARU]");
+      }
+      throw new Error(errData.error?.message || 'Terjadi kesalahan pada server AI.');
     }
     
-    const reply = await res.text();
+    const data = await response.json();
+    const reply = data.candidates[0].content.parts[0].text;
+    
+    // Parse basic markdown
+    const formattedReply = reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+    
     typingDiv.remove();
-    addChatMessage(reply, true);
+    addChatMessage(formattedReply, true);
   } catch (err) {
     typingDiv.remove();
-    addChatMessage(`Maaf, layanan AI sedang sibuk: ${err.message}`, true);
+    addChatMessage(`Maaf, layanan AI sedang terkendala: ${err.message}`, true);
   }
 }
 
