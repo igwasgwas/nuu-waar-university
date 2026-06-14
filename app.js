@@ -1563,9 +1563,12 @@ function renderAgenda() {
           </button>
         </div>
         <h3 class="text-lg font-bold text-white mb-2 relative z-10">${agenda.nama}</h3>
-        <p class="text-white/60 text-sm mb-5 leading-relaxed line-clamp-2 relative z-10">
-          ${agenda.deskripsi}
-        </p>
+        <div class="relative z-10 mb-5">
+          <p id="desc-${agenda.id}" class="text-white/60 text-sm leading-relaxed line-clamp-2 transition-all">
+            ${agenda.deskripsi}
+          </p>
+          <button onclick="document.getElementById('desc-${agenda.id}').classList.toggle('line-clamp-2'); this.innerText = this.innerText === 'Baca selengkapnya' ? 'Sembunyikan' : 'Baca selengkapnya';" class="text-amber-500 hover:text-amber-400 text-xs font-semibold mt-1">Baca selengkapnya</button>
+        </div>
         
         <div class="space-y-2.5 relative z-10">
           <div class="flex items-center gap-3 text-sm text-white/70">
