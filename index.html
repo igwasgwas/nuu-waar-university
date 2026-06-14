@@ -374,49 +374,49 @@
 
       <!-- Action Bar -->
       <div class="glass-card p-5 mb-6">
-        <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-          <!-- Action Buttons -->
-          <div class="flex flex-wrap gap-2.5 w-full sm:w-auto">
-            <button id="btn-add-student" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/25 transition-all text-sm cursor-pointer">
-              <i data-lucide="plus" class="w-4 h-4"></i>
-              Tambah Mahasiswa
-            </button>
-            <button id="btn-open-complaint" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg shadow-rose-500/25 transition-all text-sm cursor-pointer">
-              <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-              Kirim Keluhan / Komplain
-            </button>
-          </div>
-
-          <!-- Search & Sort Controls -->
-          <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-            <!-- Search -->
-            <div class="flex items-center gap-2">
-              <select id="search-by-select" class="glass-input py-2.5 px-3 text-sm min-w-[140px]">
-                <option value="nama">Cari: Nama</option>
-                <option value="nim">Cari: NIM</option>
-              </select>
-              <div class="relative flex-1">
-                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"></i>
-                <input id="search-input" type="text" placeholder="Cari berdasarkan nama..." class="glass-input pl-10 py-2.5 text-sm w-full sm:w-56">
-              </div>
+          <div class="flex flex-wrap items-center gap-3 w-full">
+            <!-- Search Select -->
+            <select id="search-algo-select" class="glass-input py-2.5 px-3 text-sm min-w-[160px] bg-slate-900/50">
+              <option value="linear">Nama (Linear)</option>
+              <option value="binary">NIM (Binary)</option>
+              <option value="sequential">Jurusan (Sequential)</option>
+            </select>
+            
+            <!-- Search Input -->
+            <div class="relative flex-1 min-w-[200px]">
+              <input id="search-input" type="text" placeholder="Ketik nama, NIM, atau jurusan..." class="glass-input py-2.5 px-4 text-sm w-full bg-slate-900/50">
             </div>
+            
+            <!-- Search Button -->
+            <button id="btn-search-action" class="px-5 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-medium rounded-xl border border-blue-500/30 transition-colors text-sm">
+              Cari
+            </button>
 
             <!-- Sort Buttons -->
-            <div class="flex items-center gap-2">
-              <button id="btn-sort-desc" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10">
-                <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i>
-                IPK Tertinggi
-              </button>
-              <button id="btn-sort-asc" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10">
-                <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
-                IPK Terendah
-              </button>
-              <button id="btn-reset-filters" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all hidden" title="Reset filter">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
+            <button id="btn-sort-bubble" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/60 transition-colors" title="Bubble Sort">
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+            </button>
+            <button id="btn-sort-selection" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/60 transition-colors" title="Selection Sort">
+              <i data-lucide="target" class="w-4 h-4"></i>
+            </button>
+            <button id="btn-sort-merge" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/60 transition-colors" title="Merge Sort">
+              <i data-lucide="layers" class="w-4 h-4"></i>
+            </button>
+
+            <!-- Divider -->
+            <div class="hidden lg:block w-px h-8 bg-white/10 mx-1"></div>
+
+            <!-- Other Actions -->
+            <button id="btn-add-student" class="px-4 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-medium rounded-xl border border-emerald-500/30 transition-colors text-sm flex items-center gap-2">
+              + Tambah
+            </button>
+            <button id="btn-open-complaint" class="px-4 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-medium rounded-xl border border-rose-500/30 transition-colors text-sm flex items-center gap-2">
+              Keluhan
+            </button>
+            <button id="btn-reset-filters" class="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 font-medium rounded-xl border border-white/10 transition-colors text-sm hidden">
+              Reset
+            </button>
           </div>
-        </div>
 
         <!-- Algorithm Info -->
         <div id="algorithm-info-container" class="mt-3 hidden">
@@ -467,7 +467,9 @@
           <i data-lucide="book-open" class="w-5 h-5 text-amber-400"></i>
           Informasi & Kompleksitas Algoritma
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- Baris 1: Search -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <!-- Linear Search -->
           <div class="glass-card p-5 border-l-4 border-l-blue-500">
             <div class="flex items-center gap-2.5 mb-2">
@@ -486,10 +488,24 @@
               <h4 class="font-bold text-white">Binary Search</h4>
             </div>
             <p class="text-white/60 text-xs leading-relaxed">
-              Mencari mahasiswa berdasarkan <strong>NIM</strong>. Data diurutkan berdasarkan NIM terlebih dahulu, kemudian pencarian dilakukan dengan membagi wilayah pencarian menjadi dua bagian secara berulang. Sangat efisien untuk data besar.
+              Mencari mahasiswa berdasarkan <strong>NIM</strong>. Data diurutkan berdasarkan NIM terlebih dahulu, kemudian pencarian dilakukan dengan membagi wilayah pencarian menjadi dua bagian secara berulang.
             </p>
           </div>
 
+          <!-- Sequential Search -->
+          <div class="glass-card p-5 border-l-4 border-l-cyan-500">
+            <div class="flex items-center gap-2.5 mb-2">
+              <span class="px-2 py-0.5 rounded text-xs font-semibold bg-cyan-500/20 text-cyan-300">O(n)</span>
+              <h4 class="font-bold text-white">Sequential Search</h4>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed">
+              Mencari mahasiswa berdasarkan <strong>Program Studi</strong>. Secara teknis sama dengan Linear Search, algoritma akan membandingkan setiap data secara berurutan.
+            </p>
+          </div>
+        </div>
+
+        <!-- Baris 2: Sort -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Bubble Sort -->
           <div class="glass-card p-5 border-l-4 border-l-purple-500">
             <div class="flex items-center gap-2.5 mb-2">
@@ -497,7 +513,29 @@
               <h4 class="font-bold text-white">Bubble Sort</h4>
             </div>
             <p class="text-white/60 text-xs leading-relaxed">
-              Mengurutkan peringkat <strong>IPK</strong> mahasiswa. Algoritma berulang kali membandingkan elemen yang bersebelahan dan menukarnya jika posisinya salah, terus berulang hingga semua data terurut rapi.
+              Mengurutkan berdasarkan <strong>IPK</strong>. Algoritma berulang kali membandingkan elemen bersebelahan dan menukarnya jika posisi salah.
+            </p>
+          </div>
+
+          <!-- Selection Sort -->
+          <div class="glass-card p-5 border-l-4 border-l-rose-500">
+            <div class="flex items-center gap-2.5 mb-2">
+              <span class="px-2 py-0.5 rounded text-xs font-semibold bg-rose-500/20 text-rose-300">O(n²)</span>
+              <h4 class="font-bold text-white">Selection Sort</h4>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed">
+              Mengurutkan berdasarkan <strong>IPK</strong>. Membagi data menjadi bagian terurut dan tidak terurut, lalu mencari elemen minimum/maksimum berulang kali.
+            </p>
+          </div>
+
+          <!-- Merge Sort -->
+          <div class="glass-card p-5 border-l-4 border-l-amber-500">
+            <div class="flex items-center gap-2.5 mb-2">
+              <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-300">O(n log n)</span>
+              <h4 class="font-bold text-white">Merge Sort</h4>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed">
+              Mengurutkan berdasarkan <strong>IPK</strong>. Algoritma Divide and Conquer yang membagi daftar menjadi bagian-bagian kecil lalu menggabungkannya secara terurut.
             </p>
           </div>
         </div>

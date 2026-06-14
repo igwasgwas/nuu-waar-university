@@ -176,6 +176,78 @@ function bubbleSortByIpk(students, order) {
   return arr;
 }
 
+/**
+ * Selection Sort by IPK — O(n²)
+ */
+function selectionSortByIpk(students, order) {
+  const arr = [...students];
+  const n = arr.length;
+
+  for (let i = 0; i < n - 1; i++) {
+    let minMaxIdx = i;
+    for (let j = i + 1; j < n; j++) {
+      if (order === 'desc') {
+        if (arr[j].ipk > arr[minMaxIdx].ipk) minMaxIdx = j;
+      } else {
+        if (arr[j].ipk < arr[minMaxIdx].ipk) minMaxIdx = j;
+      }
+    }
+    if (minMaxIdx !== i) {
+      [arr[i], arr[minMaxIdx]] = [arr[minMaxIdx], arr[i]];
+    }
+  }
+
+  return arr;
+}
+
+/**
+ * Merge Sort by IPK — O(n log n)
+ */
+function mergeSortByIpk(students, order) {
+  if (students.length <= 1) return students;
+
+  const mid = Math.floor(students.length / 2);
+  const left = mergeSortByIpk(students.slice(0, mid), order);
+  const right = mergeSortByIpk(students.slice(mid), order);
+
+  return merge(left, right, order);
+}
+
+function merge(left, right, order) {
+  let result = [];
+  let i = 0;
+  let j = 0;
+
+  while (i < left.length && j < right.length) {
+    let condition = order === 'desc' ? left[i].ipk >= right[j].ipk : left[i].ipk <= right[j].ipk;
+    if (condition) {
+      result.push(left[i]);
+      i++;
+    } else {
+      result.push(right[j]);
+      j++;
+    }
+  }
+
+  return result.concat(left.slice(i)).concat(right.slice(j));
+}
+
+/**
+ * Sequential Search by Program Studi — O(n)
+ */
+function sequentialSearchByProdi(students, query) {
+  const results = [];
+  const lowerQuery = query.toLowerCase().trim();
+
+  for (let i = 0; i < students.length; i++) {
+    if (students[i].programStudi.toLowerCase().includes(lowerQuery)) {
+      results.push(students[i]);
+    }
+  }
+
+  return results;
+}
+
 // ============================================================
 // Application State & UI Manager
 // ============================================================
@@ -198,7 +270,8 @@ let state = {
   students: [],
   loading: true,
   searchQuery: '',
-  searchBy: 'nama', // 'nama' | 'nim'
+  searchAlgo: 'linear', // 'linear' | 'binary' | 'sequential'
+  sortAlgo: 'bubble', // 'bubble' | 'selection' | 'merge'
   sortOrder: 'none', // 'none' | 'asc' | 'desc'
   showModal: false,
   editingStudent: null,
@@ -236,11 +309,15 @@ const avgIpkVal = document.getElementById('avg-ipk-val');
 const highestIpkVal = document.getElementById('highest-ipk-val');
 const lowestIpkVal = document.getElementById('lowest-ipk-val');
 const btnAddStudent = document.getElementById('btn-add-student');
-const searchBySelect = document.getElementById('search-by-select');
+const searchAlgoSelect = document.getElementById('search-algo-select');
 const searchInput = document.getElementById('search-input');
-const btnSortDesc = document.getElementById('btn-sort-desc');
-const btnSortAsc = document.getElementById('btn-sort-asc');
+const btnSearchAction = document.getElementById('btn-search-action');
+const btnSortBubble = document.getElementById('btn-sort-bubble');
+const btnSortSelection = document.getElementById('btn-sort-selection');
+const btnSortMerge = document.getElementById('btn-sort-merge');
 const btnResetFilters = document.getElementById('btn-reset-filters');
+const btnExportJson = document.getElementById('btn-export-json');
+const btnImportJson = document.getElementById('btn-import-json');
 const algorithmInfoContainer = document.getElementById('algorithm-info-container');
 const algorithmInfoText = document.getElementById('algorithm-info-text');
 const studentTableBody = document.getElementById('student-table-body');
@@ -552,17 +629,25 @@ function getProcessedStudents() {
 
   // Apply search
   if (state.searchQuery.trim()) {
-    if (state.searchBy === 'nama') {
+    if (state.searchAlgo === 'linear') {
       result = linearSearchByName(state.students, state.searchQuery);
-    } else {
+    } else if (state.searchAlgo === 'binary') {
       const found = binarySearchByNim(state.students, state.searchQuery.trim());
       result = found ? [found] : [];
+    } else if (state.searchAlgo === 'sequential') {
+      result = sequentialSearchByProdi(state.students, state.searchQuery);
     }
   }
 
   // Apply sort
   if (state.sortOrder !== 'none') {
-    result = bubbleSortByIpk(result, state.sortOrder);
+    if (state.sortAlgo === 'bubble') {
+      result = bubbleSortByIpk(result, state.sortOrder);
+    } else if (state.sortAlgo === 'selection') {
+      result = selectionSortByIpk(result, state.sortOrder);
+    } else if (state.sortAlgo === 'merge') {
+      result = mergeSortByIpk(result, state.sortOrder);
+    }
   }
 
   return result;
@@ -649,14 +734,12 @@ function renderTable() {
 }
 
 // Search and Sort Event Listeners
-searchBySelect.addEventListener('change', (e) => {
-  state.searchBy = e.target.value;
-  searchInput.placeholder = state.searchBy === 'nama' ? 'Cari berdasarkan nama...' : 'Cari berdasarkan NIM...';
-  handleSearch(true);
+searchAlgoSelect.addEventListener('change', (e) => {
+  state.searchAlgo = e.target.value;
 });
 
-searchInput.addEventListener('input', () => {
-  handleSearch(true);
+btnSearchAction.addEventListener('click', () => {
+  handleSearch(false);
 });
 
 searchInput.addEventListener('keydown', (e) => {
@@ -664,6 +747,24 @@ searchInput.addEventListener('keydown', (e) => {
     handleSearch(false);
   }
 });
+
+searchInput.addEventListener('input', () => {
+  if (!searchInput.value.trim()) {
+    handleSearch(true);
+  }
+});
+
+if (btnExportJson) {
+  btnExportJson.addEventListener('click', () => {
+    showToast('success', 'Fitur Export JSON (Simulasi)');
+  });
+}
+
+if (btnImportJson) {
+  btnImportJson.addEventListener('click', () => {
+    showToast('success', 'Fitur Import JSON (Simulasi)');
+  });
+}
 
 function handleSearch(isTyping = false) {
   const query = searchInput.value.trim();
@@ -675,46 +776,65 @@ function handleSearch(isTyping = false) {
     return;
   }
 
-  if (state.searchBy === 'nama') {
+  if (state.searchAlgo === 'linear') {
     const results = linearSearchByName(state.students, query);
     state.algorithmInfo = `Linear Search by Nama — ${results.length} hasil ditemukan`;
-  } else {
+  } else if (state.searchAlgo === 'binary') {
     const result = binarySearchByNim(state.students, query);
     state.algorithmInfo = result
       ? `Binary Search by NIM — Ditemukan: ${result.nama}`
       : `Binary Search by NIM — NIM "${query}" tidak ditemukan`;
+  } else if (state.searchAlgo === 'sequential') {
+    const results = sequentialSearchByProdi(state.students, query);
+    state.algorithmInfo = `Sequential Search by Prodi — ${results.length} hasil ditemukan`;
   }
 
   renderDashboard();
 }
 
-btnSortDesc.addEventListener('click', () => {
-  toggleSort('desc');
-});
-
-btnSortAsc.addEventListener('click', () => {
-  toggleSort('asc');
-});
-
-function toggleSort(order) {
-  if (state.sortOrder === order) {
-    state.sortOrder = 'none';
-    state.algorithmInfo = '';
-    btnSortDesc.className = 'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10';
-    btnSortAsc.className = 'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10';
+function handleSortClick(algo) {
+  if (state.sortAlgo !== algo) {
+    state.sortAlgo = algo;
+    state.sortOrder = 'desc'; // default desc
   } else {
-    state.sortOrder = order;
-    state.algorithmInfo = `Bubble Sort by IPK — ${order === 'desc' ? 'Tertinggi ke Terendah' : 'Terendah ke Tertinggi'}`;
+    // toggle asc/desc or off
+    if (state.sortOrder === 'none') state.sortOrder = 'desc';
+    else if (state.sortOrder === 'desc') state.sortOrder = 'asc';
+    else state.sortOrder = 'none';
+  }
+  
+  updateSortButtonsUI();
+  renderDashboard();
+}
 
-    if (order === 'desc') {
-      btnSortDesc.className = 'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-amber-500/20 border border-amber-500/40 text-amber-300';
-      btnSortAsc.className = 'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10';
-    } else {
-      btnSortDesc.className = 'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10';
-      btnSortAsc.className = 'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-amber-500/20 border border-amber-500/40 text-amber-300';
+btnSortBubble.addEventListener('click', () => handleSortClick('bubble'));
+btnSortSelection.addEventListener('click', () => handleSortClick('selection'));
+btnSortMerge.addEventListener('click', () => handleSortClick('merge'));
+
+function updateSortButtonsUI() {
+  const btns = {
+    bubble: btnSortBubble,
+    selection: btnSortSelection,
+    merge: btnSortMerge
+  };
+
+  for (let key in btns) {
+    btns[key].className = 'w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/60 transition-colors';
+  }
+
+  if (state.sortOrder !== 'none') {
+    const activeBtn = btns[state.sortAlgo];
+    if (state.sortAlgo === 'bubble') activeBtn.className = 'w-10 h-10 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 flex items-center justify-center text-amber-300 transition-colors';
+    if (state.sortAlgo === 'selection') activeBtn.className = 'w-10 h-10 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 flex items-center justify-center text-rose-300 transition-colors';
+    if (state.sortAlgo === 'merge') activeBtn.className = 'w-10 h-10 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 flex items-center justify-center text-purple-300 transition-colors';
+    
+    const algoName = state.sortAlgo === 'bubble' ? 'Bubble Sort' : state.sortAlgo === 'selection' ? 'Selection Sort' : 'Merge Sort';
+    state.algorithmInfo = `${algoName} by IPK — ${state.sortOrder === 'desc' ? 'Tertinggi ke Terendah' : 'Terendah ke Tertinggi'}`;
+  } else {
+    if (!state.searchQuery.trim()) {
+      state.algorithmInfo = '';
     }
   }
-  renderDashboard();
 }
 
 btnResetFilters.addEventListener('click', () => {
@@ -722,8 +842,7 @@ btnResetFilters.addEventListener('click', () => {
   state.searchQuery = '';
   state.sortOrder = 'none';
   state.algorithmInfo = '';
-  btnSortDesc.className = 'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10';
-  btnSortAsc.className = 'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10';
+  updateSortButtonsUI();
   renderDashboard();
 });
 
