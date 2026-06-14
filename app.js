@@ -954,6 +954,116 @@ function openModal(student = null) {
   studentModal.classList.add('flex');
 }
 
+// Toggle Chatbot
+const btnChatbot = document.getElementById('btn-chatbot');
+const chatbotWindow = document.getElementById('chatbot-window');
+const btnCloseChatbot = document.getElementById('btn-close-chatbot');
+
+safeAddListener(btnChatbot, 'click', () => {
+  chatbotWindow.classList.toggle('hidden');
+  chatbotWindow.classList.toggle('flex');
+});
+
+safeAddListener(btnCloseChatbot, 'click', () => {
+  chatbotWindow.classList.add('hidden');
+  chatbotWindow.classList.remove('flex');
+});
+
+// ============================================================
+// Agenda Kampus
+// ============================================================
+const agendaData = [
+  {
+    nama: "Seminar IT Masa Depan",
+    tanggal: "15 Agustus 2026",
+    waktu: "09:00 - 12:00 WIT",
+    tempat: "Auditorium Utama Nuu Waar",
+    deskripsi: "Seminar membahas perkembangan AI dan Machine Learning di industri teknologi terkini bersama para pakar."
+  },
+  {
+    nama: "Workshop Web Development",
+    tanggal: "22 Agustus 2026",
+    waktu: "13:00 - 16:00 WIT",
+    tempat: "Lab Komputer 1",
+    deskripsi: "Pelatihan intensif membangun website responsif dan modern menggunakan HTML, CSS, dan framework JavaScript."
+  },
+  {
+    nama: "Kuliah Umum Kepemimpinan",
+    tanggal: "05 September 2026",
+    waktu: "10:00 - 12:00 WIT",
+    tempat: "Aula Serbaguna",
+    deskripsi: "Membangun karakter kepemimpinan mahasiswa di era digital untuk mempersiapkan pemimpin masa depan."
+  },
+  {
+    nama: "Career Expo 2026",
+    tanggal: "20 September 2026",
+    waktu: "08:00 - 17:00 WIT",
+    tempat: "Gedung Olahraga (GOR)",
+    deskripsi: "Bursa kerja yang mempertemukan mahasiswa dan alumni dengan berbagai perusahaan teknologi ternama."
+  },
+  {
+    nama: "Lomba Inovasi Teknologi",
+    tanggal: "10 Oktober 2026",
+    waktu: "09:00 - 15:00 WIT",
+    tempat: "Gedung Rektorat Lt. 3",
+    deskripsi: "Kompetisi antar mahasiswa untuk memamerkan proyek inovasi teknologi tepat guna."
+  }
+];
+
+function renderAgendas() {
+  const agendaGrid = document.getElementById('agenda-grid');
+  if (!agendaGrid) return;
+
+  agendaGrid.innerHTML = '';
+
+  agendaData.forEach(agenda => {
+    const card = document.createElement('div');
+    card.className = "glass-card p-6 rounded-2xl hover:scale-[1.02] transition-transform duration-300 border border-white/10 hover:border-amber-500/50 shadow-lg relative overflow-hidden group";
+    card.innerHTML = `
+      <div class="absolute top-0 left-0 w-1 h-full bg-amber-500 transform origin-bottom scale-y-0 group-hover:scale-y-100 transition-transform duration-300"></div>
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+          <i data-lucide="calendar" class="w-6 h-6"></i>
+        </div>
+        <span class="px-3 py-1 bg-white/5 text-white/70 text-xs font-semibold rounded-full border border-white/10">
+          Terbaru
+        </span>
+      </div>
+      <h3 class="text-lg font-bold text-white mb-2">${agenda.nama}</h3>
+      <p class="text-white/60 text-sm mb-5 leading-relaxed line-clamp-2">
+        ${agenda.deskripsi}
+      </p>
+      
+      <div class="space-y-2.5">
+        <div class="flex items-center gap-3 text-sm text-white/70">
+          <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
+          <span>${agenda.tanggal} • ${agenda.waktu}</span>
+        </div>
+        <div class="flex items-center gap-3 text-sm text-white/70">
+          <i data-lucide="map-pin" class="w-4 h-4 text-amber-500"></i>
+          <span>${agenda.tempat}</span>
+        </div>
+      </div>
+      
+      <button class="mt-6 w-full py-2.5 rounded-xl bg-white/5 hover:bg-amber-500 text-white font-medium text-sm transition-colors duration-300">
+        Detail Agenda
+      </button>
+    `;
+    agendaGrid.appendChild(card);
+  });
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
+// Ensure it renders when the page loads
+document.addEventListener('DOMContentLoaded', renderAgendas);
+// Fallback in case DOM is already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  renderAgendas();
+}
+
 function closeModal() {
   studentModal.classList.add('hidden');
   studentModal.classList.remove('flex');
