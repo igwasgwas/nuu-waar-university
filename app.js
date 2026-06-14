@@ -1538,44 +1538,23 @@ async function handleChatbotSend() {
       <span class="animate-bounce">.</span><span class="animate-bounce" style="animation-delay: 0.1s">.</span><span class="animate-bounce" style="animation-delay: 0.2s">.</span>
     </div>
   `;
-  // Call Free AI APIs with Fallback
+  // Call Backend Proxy API
   try {
-    let reply = "";
-    const systemPrompt = "Kamu adalah TechBot, asisten virtual akademik kampus Nuu Waar University. Jawab dalam bahasa Indonesia yang sopan dan singkat.";
-    const fullQuery = `${systemPrompt}\n\nPertanyaan pengguna: ${msg}`;
-
-    try {
-      // 1. Try Pollinations AI (Text Endpoint)
-      const res1 = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullQuery)}?model=openai`);
-      if (!res1.ok) throw new Error('API 1 failed');
-      reply = await res1.text();
-    } catch (err1) {
-      try {
-        // 2. Try Ryzen Gemini API
-        const res2 = await fetch(`https://api.ryzendesu.vip/api/ai/gemini?text=${encodeURIComponent(fullQuery)}`);
-        const data2 = await res2.json();
-        if (data2 && data2.data) {
-          reply = typeof data2.data === 'string' ? data2.data : data2.data.response;
-        } else if (data2 && data2.answer) {
-          reply = data2.answer;
-        } else {
-          throw new Error('API 2 failed');
-        }
-      } catch (err2) {
-        // 3. Try AEMT Gemini API
-        const res3 = await fetch(`https://aemt.me/gemini?text=${encodeURIComponent(fullQuery)}`);
-        const data3 = await res3.json();
-        if (data3 && data3.result) {
-          reply = data3.result;
-        } else {
-          throw new Error('API 3 failed');
-        }
-      }
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message: msg })
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok || !data.reply) {
+      throw new Error(data.error || "Server AI gagal merespon.");
     }
-
-    if (!reply || reply.includes("Queue full") || reply.includes("error")) {
-      throw new Error("Server AI sedang penuh");
-    }
+    
+    const reply = data.reply;
     
     // Parse basic markdown
     const formattedReply = reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
