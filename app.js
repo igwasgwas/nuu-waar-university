@@ -1471,7 +1471,20 @@ let currentAgendaFilter = 'All';
 
 function getAgendas() {
   const data = localStorage.getItem('nuuwaar_agendas');
-  return data ? JSON.parse(data) : [];
+  if (data) {
+    return JSON.parse(data);
+  } else {
+    // Default 5 Agendas
+    const defaultAgendas = [
+      { id: '1', nama: "Seminar IT Masa Depan", tanggal: "15 Agustus 2026", waktu: "09:00 - 12:00 WIT", tempat: "Auditorium Utama Nuu Waar", deskripsi: "Seminar membahas perkembangan AI dan Machine Learning di industri teknologi terkini bersama para pakar.", type: "Seminar" },
+      { id: '2', nama: "Workshop Web Development", tanggal: "22 Agustus 2026", waktu: "13:00 - 16:00 WIT", tempat: "Lab Komputer 1", deskripsi: "Pelatihan intensif membangun website responsif dan modern menggunakan HTML, CSS, dan framework JavaScript.", type: "Kegiatan" },
+      { id: '3', nama: "Kuliah Umum Kepemimpinan", tanggal: "05 September 2026", waktu: "10:00 - 12:00 WIT", tempat: "Aula Serbaguna", deskripsi: "Membangun karakter kepemimpinan mahasiswa di era digital untuk mempersiapkan pemimpin masa depan.", type: "Seminar" },
+      { id: '4', nama: "Career Expo 2026", tanggal: "20 September 2026", waktu: "08:00 - 17:00 WIT", tempat: "Gedung Olahraga (GOR)", deskripsi: "Bursa kerja yang mempertemukan mahasiswa dan alumni dengan berbagai perusahaan teknologi ternama.", type: "Kegiatan" },
+      { id: '5', nama: "Lomba Inovasi Teknologi", tanggal: "10 Oktober 2026", waktu: "09:00 - 15:00 WIT", tempat: "Gedung Rektorat Lt. 3", deskripsi: "Kompetisi antar mahasiswa untuk memamerkan proyek inovasi teknologi tepat guna.", type: "Kegiatan" }
+    ];
+    localStorage.setItem('nuuwaar_agendas', JSON.stringify(defaultAgendas));
+    return defaultAgendas;
+  }
 }
 
 function saveAgendas(agendas) {
@@ -1507,7 +1520,7 @@ safeAddListener(btnSubmitAgendaModal, 'click', () => {
   }
   
   const agendas = getAgendas();
-  agendas.push({ id: Date.now().toString(), title, date, loc, type });
+  agendas.push({ id: Date.now().toString(), nama: title, tanggal: date, waktu: "08:00 - Selesai", tempat: loc, deskripsi: "Agenda baru ditambahkan", type });
   saveAgendas(agendas);
   
   showToast('success', 'Agenda berhasil ditambahkan');
@@ -1528,41 +1541,49 @@ function renderAgenda() {
   } else {
     agendaEmptyState.classList.add('hidden');
     
-    // Sort by date upcoming
-    filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-    
     filtered.forEach(agenda => {
       const isSeminar = agenda.type === 'Seminar';
-      const typeColor = isSeminar ? 'from-purple-500 to-purple-600' : 'from-blue-500 to-blue-600';
-      const icon = isSeminar ? 'mic' : 'calendar-days';
+      const iconName = isSeminar ? 'mic' : 'calendar-days';
       
-      const div = document.createElement('div');
-      div.className = 'glass-card p-5 relative overflow-hidden group';
-      div.innerHTML = `
-        <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
-        <div class="flex justify-between items-start mb-4 relative z-10">
-          <div class="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-white/10 border border-white/10 text-white/80">
-            ${agenda.type}
+      const card = document.createElement('div');
+      card.className = "glass-card p-6 rounded-2xl hover:scale-[1.02] transition-transform duration-300 border border-white/10 hover:border-amber-500/50 shadow-lg relative overflow-hidden group";
+      card.innerHTML = `
+        <div class="absolute top-0 left-0 w-1 h-full bg-amber-500 transform origin-bottom scale-y-0 group-hover:scale-y-100 transition-transform duration-300"></div>
+        <div class="flex items-start justify-between mb-4 relative z-10">
+          <div class="flex items-center gap-2">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <i data-lucide="${iconName}" class="w-5 h-5"></i>
+            </div>
+            <span class="px-3 py-1 bg-white/5 text-white/70 text-[10px] font-bold tracking-wider uppercase rounded-full border border-white/10">
+              ${agenda.type}
+            </span>
           </div>
-          <button class="text-white/40 hover:text-rose-400 transition-colors" onclick="deleteAgenda('${agenda.id}')">
+          <button class="text-white/40 hover:text-rose-400 transition-colors bg-white/5 p-1.5 rounded-lg border border-white/10 hover:bg-rose-500/20 hover:border-rose-500/30" onclick="deleteAgenda('${agenda.id}')" title="Hapus Agenda">
             <i data-lucide="trash-2" class="w-4 h-4"></i>
           </button>
         </div>
-        <h4 class="text-lg font-bold text-white mb-2 leading-tight relative z-10">${agenda.title}</h4>
-        <div class="space-y-2 mt-4 relative z-10">
-          <div class="flex items-center gap-2 text-white/60 text-sm">
-            <i data-lucide="calendar" class="w-4 h-4 text-amber-400"></i>
-            <span>${new Date(agenda.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+        <h3 class="text-lg font-bold text-white mb-2 relative z-10">${agenda.nama}</h3>
+        <p class="text-white/60 text-sm mb-5 leading-relaxed line-clamp-2 relative z-10">
+          ${agenda.deskripsi}
+        </p>
+        
+        <div class="space-y-2.5 relative z-10">
+          <div class="flex items-center gap-3 text-sm text-white/70">
+            <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
+            <span>${agenda.tanggal} • ${agenda.waktu}</span>
           </div>
-          <div class="flex items-center gap-2 text-white/60 text-sm">
-            <i data-lucide="map-pin" class="w-4 h-4 text-amber-400"></i>
-            <span>${agenda.loc}</span>
+          <div class="flex items-center gap-3 text-sm text-white/70">
+            <i data-lucide="map-pin" class="w-4 h-4 text-amber-500"></i>
+            <span>${agenda.tempat}</span>
           </div>
         </div>
       `;
-      agendaGrid.appendChild(div);
+      agendaGrid.appendChild(card);
     });
-    lucide.createIcons();
+    
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
   }
 }
 
@@ -1730,6 +1751,11 @@ if (btnCloseAnnouncement) {
   });
 }
 
+function closeModal() {
+  studentModal.classList.add('hidden');
+  studentModal.classList.remove('flex');
+}
+
 // ============================================================
 // KHS / Transkrip Modal Logic
 // ============================================================
@@ -1774,33 +1800,29 @@ function renderFullYearCalendar(year = 2026) {
   const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
   const days = ["S", "S", "R", "K", "J", "S", "M"];
   
-  // Highlight periods
-  const utsStart = new Date(year, 9, 10); // 10 Okt (Bulan 9 karena 0-indexed)
-  const utsEnd = new Date(year, 9, 24);   // 24 Okt
-  const uasStart = new Date(year, 11, 15); // 15 Des
-  const uasEnd = new Date(year, 11, 30);   // 30 Des
+  const utsStart = new Date(year, 9, 10);
+  const utsEnd = new Date(year, 9, 24);
+  const uasStart = new Date(year, 11, 15);
+  const uasEnd = new Date(year, 11, 30);
   const today = new Date(); 
   
   let html = '';
   
   for (let month = 0; month < 12; month++) {
-    const firstDay = new Date(year, month, 1).getDay(); // 0 = Sunday, 1 = Monday
-    const offset = firstDay === 0 ? 6 : firstDay - 1; // Adjust to make Monday first day
+    const firstDay = new Date(year, month, 1).getDay();
+    const offset = firstDay === 0 ? 6 : firstDay - 1;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     
     let daysHtml = '';
     
-    // Headers
     days.forEach(day => {
       daysHtml += `<div class="text-[10px] font-bold text-white/40 text-center pb-1">${day}</div>`;
     });
     
-    // Empty slots before 1st
     for (let i = 0; i < offset; i++) {
       daysHtml += `<div class="p-1"></div>`;
     }
     
-    // Days
     for (let day = 1; day <= daysInMonth; day++) {
       const current = new Date(year, month, day);
       let classes = "w-6 h-6 flex items-center justify-center text-[10px] rounded-md mx-auto ";
@@ -1835,5 +1857,4 @@ function renderFullYearCalendar(year = 2026) {
   container.innerHTML = html;
 }
 
-// Render calendar on load
 renderFullYearCalendar();
