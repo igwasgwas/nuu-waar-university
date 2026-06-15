@@ -37,6 +37,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         from: 'Layanan Pengaduan Nuu Waar <onboarding@resend.dev>',
         to: to,
+        reply_to: emailPengirim,
         subject: subject || `[PENGADUAN MAHASISWA] ${nama} - NIM ${nim}`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f3f4f6; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
@@ -68,7 +69,8 @@ export default async function handler(req, res) {
             </div>
 
             <div style="margin-top: 30px; font-size: 11px; color: #9ca3af; border-top: 1px solid #f3f4f6; padding-top: 15px; text-align: center;">
-              Email pengaduan ini dikirim secara otomatis oleh Layanan Pengaduan Nuu Waar University.
+              Email pengaduan ini dikirim secara otomatis oleh Layanan Pengaduan Nuu Waar University.<br>
+              Jika Anda sedang testing dengan Resend versi gratis, pastikan email tujuan adalah email yang terdaftar di akun Resend Anda.
             </div>
           </div>
         `
@@ -76,9 +78,14 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Gagal mengirim email pengaduan via Resend');
+    if (!response.ok) {
+      if (data.message && data.message.toLowerCase().includes("verified")) {
+        throw new Error('Resend Sandbox: Email Tujuan harus sama dengan email akun Resend Anda.');
+      }
+      throw new Error(data.message || 'Gagal mengirim email pengaduan via Resend');
+    }
 
-    return res.status(200).json({ success: true, message: 'Keluhan asli berhasil terkirim ke email tujuan!', data });
+    return res.status(200).json({ success: true, message: 'Notifikasi keluhan berhasil terkirim ke email!', data });
   } catch (err) {
     console.error('Send complaint email error:', err);
     return res.status(500).json({ error: err.message });
